@@ -11,8 +11,30 @@ An assortment of testing tools/tricks for JUnit in Java
 This library contains a few tools to help with TDD and Unit tests. They are largely
 unrelated, and have come out of solving real-world problems.
 
+## Installation
 
-# Contributing
+_tbc_ will be on Maven Central
+
+## Gadgets
+
+### Retries
+
+The `Retryer` class in **TestGadgets Core** allows code to be wrapped with retry logic for testing:
+
+```java
+retry(() -> {
+  // test code that might fail
+    }, repeat().times(3));
+```
+
+The `repeat` function will generate a default set of retries. The number of iterations can be set with `times` and the amout of time to wait between is set with `waitBetween`. The code under test can be `void` or return a value:
+
+```java
+String result = retry(() -> callThingThatReturnsResult(),
+                     repeat().times(10).waitBetween(Duration.ofSeconds(1)));
+```
+
+## Contributing
 
 If you have any issues or improvements, please
 [at least submit an issue](https://github.com/webcompere/java-test-gadgets/issues).

@@ -44,6 +44,7 @@
   <properties>
     <version.maven-scm-provider-gitexe>1.11.2</version.maven-scm-provider-gitexe>
     <gpg.passphrase>providedfromoutside</gpg.passphrase>
+    <maven.compiler.release>8</maven.compiler.release>
     <version.maven-gpg-plugin>1.6</version.maven-gpg-plugin>
     <version.maven-javadoc-plugin>3.2.0</version.maven-javadoc-plugin>
     <version.maven-source-plugin>3.2.1</version.maven-source-plugin>

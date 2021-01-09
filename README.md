@@ -15,9 +15,7 @@ unrelated, and have come out of solving real-world problems.
 
 _tbc_ will be on Maven Central
 
-## Gadgets
-
-### Retries
+## Retries
 
 The `Retryer` class in **TestGadgets Core** allows code to be wrapped with retry logic for testing:
 
@@ -57,6 +55,147 @@ public void nonRetried() {
 
 Note: if the tests change the state of the test object, then allowing them to retry may cause unexpected side effects.
 
+## Test Categories
+
+Goal: Dependent on environment variables, selectively disable/enable individual test cases according to a tag. This is intended for use in CI/CD pipelines where some tests may not be possible in some environments.
+
+Note: This is exclusively available in **JUnit4**. It can be combined with the **Dependent Tests** feature as that feature also uses this rule to apply categories.
+
+To use, first annotate the test with the `CategoryRule` and `@Category` annotations on tests to run selectively:
+
+```java
+@Rule
+public CategoryRule categoryRule = new CategoryRule();
+
+@Test
+public void always() {
+}
+
+@Category("cat1")
+@Test
+public void hasOneCategory() {
+}
+
+@Category({"cat1","cat2"})
+@Test
+public void hasTwoCategories() {
+}
+```
+
+In the above, the `always` test is unaffected by category selection. The other two tests will run if their categories are within the list of active categories in an environment variable.
+
+Then, set the environment variable `INCLUDE_TEST_CATEGORIES` to a comma separated list of test categories that you wish to include in the test run before executing the test.
+
+### Excluding Categories
+
+Where some tests are in a category that is usually included, it may be necessary to exclude a subset of that. To do this, add another category for the test and then set the `EXCLUDE_TEST_CATEGORIES` environment to a comma separated list of the categories to further exclude.
+
+E.g.
+
+```java
+@Rule
+public CategoryRule categoryRule = new CategoryRule();
+
+@Category({"integration"})
+@Test
+public void intTest1() {
+  
+}
+
+@Category({"integration", "slow"})
+@Test
+public void rareIntTest() {
+  
+}
+
+INCLUDE_TEST_CATEGORIES = integration
+EXCLUDE_TEST_CATEGORIES = slow  
+```
+
+The above would then include the first test because it's in `integration` but would subtract the second because it has `slow`.
+
+### Inverting the Tag
+
+The `@Category` annotation has a field `will` which defaults to `INCLUDE` and causes the behaviour above. However, we may prefer to default to including all tests unless their category is specifically mentioned.
+
+This can be done by setting `will` to `EXCLUDE` and using the `INCLUDE_TEST_CATEGORIES` environment variable.
+
+```java
+@Rule
+public CategoryRule categoryRule = new CategoryRule();
+
+@Category(value = "cat1", will = EXCLUDE)
+@Test
+public void notOnCat1() {
+}
+```
+
+Here, the `notOnCat1` will run unless `cat1` is in the **inclusion list** of the categories.
+
+## Dependent Tests
+
+People migrating from TestNG to JUnit may miss the features of TestNG that support test ordering, in particularly:
+
+- Priority
+- One test dependent on the successful completion of another
+
+To achieve these, the `DependentTestRunner` provides both features. The `DependentTestRunner` might otherwise conflict with the `CategoryRule`, so has its own direct integration with the category logic, and thus supports categories.
+
+These tests may best suit integration tests where the dependency or priority is caused by the complex behaviour of the system under test during the test run.
+
+### Priority
+
+```java
+@RunWith(DependentTestRunner.class)
+public class DependentTestRunnerExampleTest {
+    @Test
+    @Priority(1)
+    public void aTest() {
+
+    }
+  
+    @Test
+    @Priority(2)
+    public void lowerPriorityTest() {
+      
+    }
+  
+    @Test
+    public void noPrioritySoRunAsLowest() {
+     
+    }
+}
+```
+
+The `@Priority` annotation describes how important a test is. The lower the number the more urgently the test is run within the fixture. Tests with no `@Priority` are run latest.
+
+### Dependency
+
+Sometimes we need a test to run only after a predecessor. Similarly we may not want a test to be attempted if its predecessor failed. For this we use the `@DependOnPassing` annotation:
+
+```java
+@RunWith(DependentTestRunner.class)
+public class DependentTestRunnerExampleTest {
+    @Test
+    @Priority(2)
+    @DependOnPassing("anotherTest")
+    public void dependentTest() {
+
+    }
+
+    @Test
+    public void anotherTest() {
+
+    }
+}
+```
+
+In this example `anotherTest` MUST be run before `dependentTest` and so runs earlier, even though `dependentTest` technically has a higher priority.
+
+Dependencies can be a tree, and the test runner works out the order based on running the least dependent tests first, executing their dependent as soon as can be allowed.
+
+Binding between tests is by method name, which doesn't tolerate refactoring particularly nicely. However, the test runner first scans all the tests to ensure that the dependencies exist and are not cyclic, before allowing the test to run.
+
 ## Contributing
 
 If you have any issues or improvements, please
@@ -69,3 +208,15 @@ Please also feel free to fork the project and submit a PR for consideration.
 
 The basic coding style is described in the
 [EditorConfig](http://editorconfig.org/) file `.editorconfig`.
+
+### Build
+
+```bash
+# to build
+./mvnw clean install
+```
+
+Note: the JUnit4 project includes some test classes which fail on purpose.
+These are not built by Maven by default. They may, however, be picked up
+by the test runner in an IDE, such as IntelliJ. Test with maven to be sure what
+passes or fails.

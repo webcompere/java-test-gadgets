@@ -99,17 +99,17 @@ public CategoryRule categoryRule = new CategoryRule();
 @Category({"integration"})
 @Test
 public void intTest1() {
-  
+
 }
 
 @Category({"integration", "slow"})
 @Test
 public void rareIntTest() {
-  
+
 }
 
 INCLUDE_TEST_CATEGORIES = integration
-EXCLUDE_TEST_CATEGORIES = slow  
+EXCLUDE_TEST_CATEGORIES = slow
 ```
 
 The above would then include the first test because it's in `integration` but would subtract the second because it has `slow`.
@@ -134,7 +134,7 @@ Here, the `notOnCat1` will run unless `cat1` is in the **inclusion list** of the
 
 ## Dependent Tests
 
-People migrating from TestNG to JUnit may miss the features of TestNG that support test ordering, in particularly:
+People migrating from TestNG to JUnit may miss the features of TestNG that support test ordering, in particular:
 
 - Priority
 - One test dependent on the successful completion of another
@@ -153,16 +153,16 @@ public class DependentTestRunnerExampleTest {
     public void aTest() {
 
     }
-  
+
     @Test
     @Priority(2)
     public void lowerPriorityTest() {
-      
+
     }
-  
+
     @Test
     public void noPrioritySoRunAsLowest() {
-     
+
     }
 }
 ```

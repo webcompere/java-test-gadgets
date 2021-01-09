@@ -34,6 +34,29 @@ String result = retry(() -> callThingThatReturnsResult(),
                      repeat().times(10).waitBetween(Duration.ofSeconds(1)));
 ```
 
+This can be used via a **JUnit Rule** from the **JUnit4** module:
+
+```java
+@Rule
+public RetryTests retryTests = new RetryTests(2, Duration.ofMillis(2));
+```
+
+The rule will retry all tests, though it will only retry the test method, not the `@Before` or `@After` etc. If a test should not be retried than that test can be annotated with `@DoNotRetry` to prevent the rule executing on it:
+
+```java
+@Test
+public void someTest() {
+  // would be retried up to the limit of the RetryTests rule
+}
+
+@DoNotRetry
+public void nonRetried() {
+  // fails immediately without retries
+}
+```
+
+Note: if the tests change the state of the test object, then allowing them to retry may cause unexpected side effects.
+
 ## Contributing
 
 If you have any issues or improvements, please

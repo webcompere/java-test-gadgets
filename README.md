@@ -55,6 +55,51 @@ public void nonRetried() {
 
 Note: if the tests change the state of the test object, then allowing them to retry may cause unexpected side effects.
 
+## Run JUnit4 `TestRule` outside of JUnit 4
+
+Available in the **core** module, the `Rules` class allows interoperability of JUnit 4 `TestRule` objects in non JUnit 4 tests. It introduces the execute-around idiom.
+
+**Warning:** this will work with some test rules and not with others. Where a test rule needs to use the annotations on the actual test methods, then this will fail. It is most suitable for use with objects that provide a resource of some sort.
+
+Let's use JUnit4's `TemporaryFolder` rule as an example (even though there's a JUnit5 native alternative you could use).
+
+```java
+@Test
+void testMethod() throws Exception {
+  TemporaryFolder temporaryFolder = new TemporaryFolder();
+
+  // let's use this temp folder with some test code
+  executeWithRule(temporaryFolder, () -> {
+    // here, the rule is _active_
+    callSomethingThatUses(temporaryFolder.getRoot());
+  });
+  
+  // here the rule has cleaned up
+}
+```
+
+We can also use this pattern to execute multiple rules in sequence. Let's add `EnvironmentVariableRule` from SystemStubs (again, there are better ways of doing this, but it's a simple example).
+
+```java
+// use withRules to construct a set of rules to use together
+@Test
+void testMethod() throws Exception {
+  TemporaryFolder temporaryFolder = new TemporaryFolder();
+	EnvironmentVariablesRule environment = new EnvironmentVariables("foo", "bar");
+  
+  // let's use this temp folder with some test code
+  withRules(temporaryFolder, environment)
+    .execute(() -> {
+    // here, the rules is _active_
+    callSomethingThatUses(temporaryFolder.getRoot());
+  });
+  
+  // here the rules have been cleaned up
+}
+```
+
+The function passed to `executeWithRule` and `execute` can be `void` or can return a value. 
+
 ## Test Categories
 
 Goal: Dependent on environment variables, selectively disable/enable individual test cases according to a tag. This is intended for use in CI/CD pipelines where some tests may not be possible in some environments.

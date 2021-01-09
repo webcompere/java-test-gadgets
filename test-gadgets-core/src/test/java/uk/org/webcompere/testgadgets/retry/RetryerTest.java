@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.org.webcompere.testgadgets.ThrowingRunnable;
 
 import java.io.IOException;
 import java.time.Duration;
@@ -21,7 +22,7 @@ class RetryerTest {
     private Callable<String> callable;
 
     @Mock
-    private Retryer.ThrowingRunnable runnable;
+    private ThrowingRunnable runnable;
 
     @Test
     void whenNothingFails() throws Exception {

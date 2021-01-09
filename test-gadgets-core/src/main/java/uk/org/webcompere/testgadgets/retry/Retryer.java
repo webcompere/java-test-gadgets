@@ -1,5 +1,7 @@
 package uk.org.webcompere.testgadgets.retry;
 
+import uk.org.webcompere.testgadgets.ThrowingRunnable;
+
 import java.time.Duration;
 import java.util.concurrent.Callable;
 
@@ -15,14 +17,6 @@ import java.util.concurrent.Callable;
  */
 public final class Retryer {
     private static final Duration DEFAULT_DURATION = Duration.ofMillis(50);
-
-    /**
-     * A runnable that can throw an exception - essentially the code under test
-     */
-    @FunctionalInterface
-    public interface ThrowingRunnable {
-        void run() throws Exception;
-    }
 
     /**
      * Represents the retries required by the caller

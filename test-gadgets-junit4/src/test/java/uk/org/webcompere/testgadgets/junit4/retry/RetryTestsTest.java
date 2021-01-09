@@ -1,15 +1,13 @@
-package uk.webcompere.testgadgets.junit4.retry;
+package uk.org.webcompere.testgadgets.junit4.retry;
 
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.Description;
-import org.junit.runner.RunWith;
 import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunListener;
 import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.BlockJUnit4ClassRunner;
-import org.junit.runners.Suite;
 
 import java.time.Duration;
 import java.util.HashSet;

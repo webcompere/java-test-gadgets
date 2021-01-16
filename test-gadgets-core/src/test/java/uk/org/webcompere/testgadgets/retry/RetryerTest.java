@@ -14,6 +14,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.*;
+import static uk.org.webcompere.testgadgets.retry.Retryer.retry;
+import static uk.org.webcompere.testgadgets.retry.Retryer.retryer;
 
 @ExtendWith(MockitoExtension.class)
 class RetryerTest {
@@ -28,7 +30,7 @@ class RetryerTest {
     void whenNothingFails() throws Exception {
         given(callable.call()).willReturn(null);
 
-        assertNull(Retryer.retry(callable, Retryer.repeat()));
+        assertNull(retry(callable, Retryer.repeat()));
 
         then(callable).should().call();
     }
@@ -39,7 +41,7 @@ class RetryerTest {
 
         assertThatThrownBy(() -> {
             try {
-                Retryer.retry(callable, Retryer.repeat().times(10));
+                retry(callable, Retryer.repeat().times(10));
             } finally {
                 verify(callable, times(10)).call();
             }})
@@ -52,7 +54,7 @@ class RetryerTest {
 
         assertThatThrownBy(() -> {
             try {
-                Retryer.retry(callable, Retryer.repeat().times(10));
+                retry(callable, Retryer.repeat().times(10));
             } finally {
                 verify(callable, times(10)).call();
             }})
@@ -66,7 +68,7 @@ class RetryerTest {
             .willThrow(new IOException("My exception"))
             .willReturn("Hello world!");
 
-        assertThat(Retryer.retry(callable, Retryer.repeat().times(10)))
+        assertThat(retry(callable, Retryer.repeat().times(10)))
             .isEqualTo("Hello world!");
 
         verify(callable, times(3)).call();
@@ -79,7 +81,7 @@ class RetryerTest {
             .willDoNothing()
             .given(runnable).run();
 
-        Retryer.retry(runnable, Retryer.repeat().times(10));
+        retry(runnable, Retryer.repeat().times(10));
         then(runnable)
             .should(times(3)).run();
     }
@@ -91,8 +93,24 @@ class RetryerTest {
             .willDoNothing()
             .given(runnable).run();
 
-        Retryer.retry(runnable, Retryer.repeat()
+        retry(runnable, Retryer.repeat()
             .times(10).waitBetween(Duration.ofMillis(10)));
+        then(runnable)
+            .should(times(3)).run();
+    }
+
+    @Test
+    void retryerWithFluentInterface() throws Exception {
+        willThrow(new IOException("My exception"))
+            .willThrow(new IOException("My exception"))
+            .willDoNothing()
+            .given(runnable).run();
+
+        retryer()
+            .times(10)
+            .waitBetween(Duration.ofMillis(5))
+            .retry(runnable);
+
         then(runnable)
             .should(times(3)).run();
     }

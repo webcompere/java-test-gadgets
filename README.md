@@ -20,19 +20,46 @@ _tbc_ will be on Maven Central
 The `Retryer` class in **TestGadgets Core** allows code to be wrapped with retry logic for testing:
 
 ```java
-retry(() -> {
-  // test code that might fail
-    }, repeat().times(3));
+// construct the retryer
+retryer()
+    .retry(() -> {
+        // test code that might fail
+    });
 ```
 
-The `repeat` function will generate a default set of retries. The number of iterations can be set with `times` and the amout of time to wait between is set with `waitBetween`. The code under test can be `void` or return a value:
+The number of iterations can be set with `times` and the amount of time to wait between is set with `waitBetween`. The code under test can be `void` or return a value:
 
 ```java
-String result = retry(() -> callThingThatReturnsResult(),
-                     repeat().times(10).waitBetween(Duration.ofSeconds(1)));
+String result = retryer()
+    .times(10)
+    .waitBetween(Duration.ofSeconds(1))
+    .retry(() -> callThingThatReturnsResult());
 ```
 
-This can be used via a **JUnit Rule** from the **JUnit4** module:
+A common use case for this would be to wrap an assertion with the retryer while waiting
+for an asynchronous state to change. E.g.:
+
+```java
+AppClient clientToRunningApp = ...;
+retryer()
+   .retry(() -> assertThat(clientToRunningApp.getCompletedJobs())
+          .isEqualTo(10));
+```
+
+The configuration of the retryer can be shared across multiple tests:
+
+```java
+private static final RETRY_FOR_10_SECONDS = retryer()
+    .times(10)
+    .waitBetween(Duration.ofSeconds(1));
+
+@Test
+void someTest() {
+    RETRY_FOR_10_SECONDS.retry(() -> doSomething());
+}
+```
+
+Retries are also possible via a **JUnit Rule** from the **JUnit4** module:
 
 ```java
 @Rule
@@ -73,7 +100,7 @@ void testMethod() throws Exception {
     // here, the rule is _active_
     callSomethingThatUses(temporaryFolder.getRoot());
   });
-  
+
   // here the rule has cleaned up
 }
 ```
@@ -86,19 +113,19 @@ We can also use this pattern to execute multiple rules in sequence. Let's add `E
 void testMethod() throws Exception {
   TemporaryFolder temporaryFolder = new TemporaryFolder();
 	EnvironmentVariablesRule environment = new EnvironmentVariables("foo", "bar");
-  
+
   // let's use this temp folder with some test code
   withRules(temporaryFolder, environment)
     .execute(() -> {
     // here, the rules is _active_
     callSomethingThatUses(temporaryFolder.getRoot());
   });
-  
+
   // here the rules have been cleaned up
 }
 ```
 
-The function passed to `executeWithRule` and `execute` can be `void` or can return a value. 
+The function passed to `executeWithRule` and `execute` can be `void` or can return a value.
 
 ## Test Categories
 

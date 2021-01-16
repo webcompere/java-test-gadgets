@@ -40,6 +40,8 @@ public class Rules {
         /**
          * Execute a callable within the rules in the list
          * @param callable the code under test
+         * @param <T> the type returned by the callable
+         * @return the result of the callabl
          * @throws Exception when the test fails
          */
         public <T> T execute(Callable<T> callable) throws Exception {
@@ -85,6 +87,7 @@ public class Rules {
      * @param rule the rule to use
      * @param callable code that returns a value
      * @param <T> the type of value returned by the code under test
+     * @return the return value of the callable
      * @throws Exception on any exception in the code under test or rule
      */
     public static <T> T executeWithRule(TestRule rule, Callable<T> callable) throws Exception {

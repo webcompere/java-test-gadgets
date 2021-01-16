@@ -1,12 +1,12 @@
-package uk.org.webcompere.testgadgets.junit4.order;
+package uk.org.webcompere.testgadgets.order;
 
 import org.junit.rules.MethodRule;
 import org.junit.runners.BlockJUnit4ClassRunner;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.Statement;
-import uk.org.webcompere.testgadgets.junit4.category.Category;
-import uk.org.webcompere.testgadgets.junit4.category.CategoryRule;
+import uk.org.webcompere.testgadgets.category.Category;
+import uk.org.webcompere.testgadgets.category.CategoryRule;
 
 import java.util.*;
 import java.util.function.Function;

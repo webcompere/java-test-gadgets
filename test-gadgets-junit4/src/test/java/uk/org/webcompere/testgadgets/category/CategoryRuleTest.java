@@ -1,14 +1,14 @@
-package uk.org.webcompere.testgadgets.junit4.category;
+package uk.org.webcompere.testgadgets.category;
 
 import org.junit.Rule;
 import org.junit.Test;
 import uk.org.webcompere.systemstubs.rules.EnvironmentVariablesRule;
-import uk.org.webcompere.testgadgets.junit4.JUnitRunnerHelper;
+import uk.org.webcompere.testgadgets.JUnitRunnerHelper;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static uk.org.webcompere.testgadgets.junit4.category.CategoryRelationship.EXCLUDE;
-import static uk.org.webcompere.testgadgets.junit4.category.CategoryRule.ENVIRONMENT_VARIABLE_EXCLUDE;
-import static uk.org.webcompere.testgadgets.junit4.category.CategoryRule.ENVIRONMENT_VARIABLE_INCLUDE;
+import static uk.org.webcompere.testgadgets.category.CategoryRelationship.EXCLUDE;
+import static uk.org.webcompere.testgadgets.category.CategoryRule.ENVIRONMENT_VARIABLE_EXCLUDE;
+import static uk.org.webcompere.testgadgets.category.CategoryRule.ENVIRONMENT_VARIABLE_INCLUDE;
 
 public class CategoryRuleTest {
     @Rule

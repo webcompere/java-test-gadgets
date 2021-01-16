@@ -1,4 +1,4 @@
-package uk.org.webcompere.testgadgets.junit4.retry;
+package uk.org.webcompere.testgadgets.retry;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

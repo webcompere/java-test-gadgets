@@ -1,4 +1,4 @@
-package uk.org.webcompere.testgadgets.junit4;
+package uk.org.webcompere.testgadgets;
 
 import org.junit.runner.Description;
 import org.junit.runner.JUnitCore;

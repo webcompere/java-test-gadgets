@@ -1,4 +1,4 @@
-package uk.org.webcompere.testgadgets.junit4.retry;
+package uk.org.webcompere.testgadgets.retry;
 
 import org.junit.Ignore;
 import org.junit.Rule;

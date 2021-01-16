@@ -1,6 +1,6 @@
-package uk.org.webcompere.testgadgets.junit4.category;
+package uk.org.webcompere.testgadgets.category;
 
-import uk.org.webcompere.testgadgets.junit4.order.DependentTestRunner;
+import uk.org.webcompere.testgadgets.order.DependentTestRunner;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

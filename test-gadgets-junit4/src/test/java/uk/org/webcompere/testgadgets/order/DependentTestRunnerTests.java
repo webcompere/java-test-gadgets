@@ -1,19 +1,19 @@
-package uk.org.webcompere.testgadgets.junit4.order;
+package uk.org.webcompere.testgadgets.order;
 
 import org.junit.*;
 import org.junit.runner.Result;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
 import uk.org.webcompere.systemstubs.rules.EnvironmentVariablesRule;
-import uk.org.webcompere.testgadgets.junit4.JUnitRunnerHelper;
-import uk.org.webcompere.testgadgets.junit4.category.Category;
+import uk.org.webcompere.testgadgets.JUnitRunnerHelper;
+import uk.org.webcompere.testgadgets.category.Category;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static uk.org.webcompere.testgadgets.junit4.category.CategoryRule.ENVIRONMENT_VARIABLE_INCLUDE;
+import static uk.org.webcompere.testgadgets.category.CategoryRule.ENVIRONMENT_VARIABLE_INCLUDE;
 
 /**
  * The tests here can be run in themselves, but should be excluded from a test runner that digs into inner classes.

@@ -1,4 +1,4 @@
-package uk.org.webcompere.testgadgets.junit4.category;
+package uk.org.webcompere.testgadgets.category;
 
 import org.junit.rules.MethodRule;
 import org.junit.runners.model.FrameworkMethod;

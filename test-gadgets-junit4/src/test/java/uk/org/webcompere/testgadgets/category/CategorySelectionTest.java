@@ -1,10 +1,10 @@
-package uk.org.webcompere.testgadgets.junit4.category;
+package uk.org.webcompere.testgadgets.category;
 
 import org.junit.Before;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static uk.org.webcompere.testgadgets.junit4.category.CategoryRelationship.EXCLUDE;
+import static uk.org.webcompere.testgadgets.category.CategoryRelationship.EXCLUDE;
 
 public class CategorySelectionTest {
     private Category annotatedWithCategory1Annotation;

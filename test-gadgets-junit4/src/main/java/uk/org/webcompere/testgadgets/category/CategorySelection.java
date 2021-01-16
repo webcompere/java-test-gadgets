@@ -1,4 +1,4 @@
-package uk.org.webcompere.testgadgets.junit4.category;
+package uk.org.webcompere.testgadgets.category;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -6,7 +6,7 @@ import java.util.*;
 
 import static java.util.Collections.emptySet;
 import static java.util.stream.Collectors.toSet;
-import static uk.org.webcompere.testgadgets.junit4.category.CategoryRelationship.INCLUDE;
+import static uk.org.webcompere.testgadgets.category.CategoryRelationship.INCLUDE;
 
 /**
  * This class parses the configuration values for included and excluded categories, which are <code>,</code> delimited

@@ -1,4 +1,4 @@
-package uk.org.webcompere.testgadgets.junit4.order;
+package uk.org.webcompere.testgadgets.order;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

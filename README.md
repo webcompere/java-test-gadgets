@@ -268,6 +268,54 @@ Dependencies can be a tree, and the test runner works out the order based on run
 
 Binding between tests is by method name, which doesn't tolerate refactoring particularly nicely. However, the test runner first scans all the tests to ensure that the dependencies exist and are not cyclic, before allowing the test to run.
 
+## Parallel Test Execution
+
+**Available in JUnit 4**, the `ParallelEnclosedRunner` is an extension of the JUnit `Enclosed` runner. The JUnit team allowed for the possibility of multi-threaded tests in their original design, and this runner uses the mechanisms available.
+
+Example:
+
+```java
+ @RunWith(ParallelEnclosedRunner.class)
+ public class MyTest {
+     public static class TestClass1 {
+         // tests in here run linearly, but the other
+         // test class also runs in parallel
+         @Test
+         public void test1() {
+         }
+       
+         // other tests
+     }
+ 
+     // allows the child tests to have their own test runners
+     @RunWith(SomeOtherRunner.class)
+     public static class TestClass2 {
+        // test in here run in parallel with tests from the other class
+        @Test
+        public void test2() {
+        }
+    }
+ }
+```
+
+Each child of the test class is an independent test class, which can have its own runner, configurations etc. Like the JUnit `Enclosed` runner, all child class tests are executed within the parent class. However, this runner uses a threadpool to execute the children classes in parallel. A child class can also use the `ParallelEnclosedRunner` with its own thread pool to run other child tests in parallel.
+
+The number of threads can be defined by adding a `ParallelOptions` annotation:
+
+```java
+@RunWith(ParallelEnclosedRunner.class)
+@ParallelOptions(poolSize=99)
+public class MyTest {
+   // ...
+}
+```
+
+It may be desirable to increase this number if there are more child test classes and they are ALL to run in parallel, or to reduce the number to throttle the maximum number of child tests that can run at the same time.
+
+This runner can help with integration tests where there are multiple slow-running independent operations to be executed on different parts of the system.
+
+This could technically be used to create a hierarchy of parallel running tests, though the failure of one test won't affect any of the others.
+
 ## Contributing
 
 If you have any issues or improvements, please

@@ -7,8 +7,8 @@ import uk.org.webcompere.testgadgets.JUnitRunnerHelper;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.org.webcompere.testgadgets.category.CategoryRelationship.EXCLUDE;
-import static uk.org.webcompere.testgadgets.category.CategoryRule.ENVIRONMENT_VARIABLE_EXCLUDE;
-import static uk.org.webcompere.testgadgets.category.CategoryRule.ENVIRONMENT_VARIABLE_INCLUDE;
+import static uk.org.webcompere.testgadgets.category.CategorySelection.ENVIRONMENT_VARIABLE_EXCLUDE;
+import static uk.org.webcompere.testgadgets.category.CategorySelection.ENVIRONMENT_VARIABLE_INCLUDE;
 
 public class CategoryRuleTest {
     @Rule

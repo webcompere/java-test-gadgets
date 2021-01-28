@@ -13,7 +13,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static uk.org.webcompere.testgadgets.category.CategoryRule.ENVIRONMENT_VARIABLE_INCLUDE;
+import static uk.org.webcompere.testgadgets.category.CategorySelection.ENVIRONMENT_VARIABLE_INCLUDE;
 
 /**
  * The tests here can be run in themselves, but should be excluded from a test runner that digs into inner classes.

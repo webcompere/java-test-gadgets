@@ -3,6 +3,9 @@ package uk.org.webcompere.testgadgets.category;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
+import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 import static java.util.Collections.emptySet;
 import static java.util.stream.Collectors.toSet;
@@ -25,6 +28,16 @@ import static uk.org.webcompere.testgadgets.category.CategoryRelationship.INCLUD
  * in finer grained detail.
  */
 public class CategorySelection {
+    /**
+     * Defines the environment variable for including test categories
+     */
+    public static final String ENVIRONMENT_VARIABLE_INCLUDE = "INCLUDE_TEST_CATEGORIES";
+
+    /**
+     * Defines the environment variable for including test categories
+     */
+    public static final String ENVIRONMENT_VARIABLE_EXCLUDE = "EXCLUDE_TEST_CATEGORIES";
+
     private static final String DELIMITER = ",";
 
     private Set<String> included;
@@ -43,6 +56,31 @@ public class CategorySelection {
      */
     public static CategorySelection of(String include, String exclude) {
         return new CategorySelection(parse(include), parse(exclude));
+    }
+
+    /**
+     * Factory method to produce the category selection from the environment variables
+     * @return a new {@link CategorySelection}
+     */
+    public static CategorySelection readCategoriesFromEnvironment() {
+        return CategorySelection.of(
+            readEnvironmentVariable(ENVIRONMENT_VARIABLE_INCLUDE),
+            readEnvironmentVariable(ENVIRONMENT_VARIABLE_EXCLUDE));
+    }
+
+    private static String readEnvironmentVariable(String variableName) {
+        return possibleSources(variableName)
+            .map(Supplier::get)
+            .filter(Optional::isPresent)
+            .findFirst()
+            .flatMap(Function.identity())
+            .orElse("");
+    }
+
+    private static Stream<Supplier<Optional<String>>> possibleSources(String variableName) {
+        return Stream.of(
+            () -> Optional.ofNullable(System.getenv(variableName)),
+            () -> Optional.ofNullable(System.getProperty(variableName)));
     }
 
     private static Set<String> parse(String input) {

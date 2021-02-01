@@ -15,7 +15,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static uk.org.webcompere.testgadgets.category.CategorySelection.ENVIRONMENT_VARIABLE_INCLUDE;
 
 @RunWith(TestWrapper.class)
-@WrapperOptions(runnerClass = Enclosed.class)
+@WrapperOptions(runWith = Enclosed.class)
 public class CategoryFilterTest {
     private static boolean catARan = false;
     private static boolean catBRan = false;

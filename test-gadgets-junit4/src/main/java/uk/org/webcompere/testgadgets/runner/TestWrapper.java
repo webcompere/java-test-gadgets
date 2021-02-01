@@ -49,7 +49,7 @@ public class TestWrapper extends ParentRunner<Runner> {
             try {
                 AnnotatedBuilder annotatedBuilder = new AnnotatedBuilder(builder);
                 // make the runner from the options
-                actualRunner = (ParentRunner<?>)annotatedBuilder.buildRunner(options.runnerClass(), klass);
+                actualRunner = (ParentRunner<?>)annotatedBuilder.buildRunner(options.runWith(), klass);
             } catch (Exception e) {
                 throw new InitializationError(e);
             }

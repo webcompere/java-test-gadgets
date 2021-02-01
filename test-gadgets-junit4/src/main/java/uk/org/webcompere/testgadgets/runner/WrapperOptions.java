@@ -15,7 +15,8 @@ import java.lang.annotation.Target;
 @Target({ElementType.TYPE})
 public @interface WrapperOptions {
     /**
-     * The inner runner to use
+     * The inner runner to use - the <em>real</em> test runner. Think of this as an inner
+     * use of the {@link org.junit.runner.RunWith} annotation.
      */
-    Class<? extends Runner> runnerClass() default BlockJUnit4ClassRunner.class;
+    Class<? extends Runner> runWith() default BlockJUnit4ClassRunner.class;
 }

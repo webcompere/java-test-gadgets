@@ -2,6 +2,7 @@ package uk.org.webcompere.testgadgets.rules;
 
 import org.junit.rules.TestRule;
 import org.junit.runners.model.Statement;
+import uk.org.webcompere.testgadgets.TestResource;
 import uk.org.webcompere.testgadgets.ThrowingRunnable;
 
 import java.util.Arrays;
@@ -42,6 +43,16 @@ public class Rules {
      */
     public static TestRule asRule(ThrowingRunnable beforeTest, ThrowingRunnable afterTest) {
         return (statement, description) -> asStatement(beforeTest, afterTest, statement);
+    }
+
+    /**
+     * Create a test rule from a {@link TestResource} with its own {@link TestResource#setup()} and
+     * {@link TestResource#teardown()} methods
+     * @param testResource the resource to use as a JUnit 4 {@link TestRule}
+     * @return a {@link TestRule}
+     */
+    public static TestRule asRule(TestResource testResource) {
+        return asRule(testResource::setup, testResource::teardown);
     }
 
     /**

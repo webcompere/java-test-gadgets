@@ -1,4 +1,4 @@
-package uk.org.webcompere.testgadgets.statement;
+package uk.org.webcompere.testgadgets.rules;
 
 import org.junit.rules.TestRule;
 import org.junit.runners.model.Statement;
@@ -14,7 +14,7 @@ import static org.junit.runner.Description.createTestDescription;
 /**
  * Helpers to work with JUnit4 rules
  */
-public class Rules {
+public class ExecuteRules {
     /**
      * Execute multiple rules as a list
      */
@@ -67,7 +67,7 @@ public class Rules {
 
     /**
      * Execute the code under test within a given JUnit4 test rule, which is activated
-     * during the execution. See {@link Rules#executeWithRule(TestRule, Callable)}
+     * during the execution. See {@link ExecuteRules#executeWithRule(TestRule, Callable)}
      * @param rule the rule to use
      * @param runnable code that doesn't return a value
      * @throws Exception on any exception in the code under test or rule
@@ -112,6 +112,6 @@ public class Rules {
             public void evaluate() throws Throwable {
                 box.setValue(callable.call());
             }
-        }, createTestDescription(Rules.class, "executeWithRule"));
+        }, createTestDescription(ExecuteRules.class, "executeWithRule"));
     }
 }

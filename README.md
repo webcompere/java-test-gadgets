@@ -15,6 +15,23 @@ unrelated, and have come out of solving real-world problems.
 
 _tbc_ will be on Maven Central
 
+## Overview
+
+_Test Gadgets_ brings together various problems found in real-world construction of JUnit tests. These problems have often been encountered in integration tests, but may help constructing any sort of tests with JUnit.
+
+There is a focus on solving problems with JUnit 4. Migrating to JUnit 5 might be a better solution in some cases, but there are still test runners out there (Serenity for example) which are not compatible with JUnit 5. In addition, some of the tools in this collection are intended to help with JUnit 5 migration by providing functions to bring in JUnit 4 functionality unavailable in JUnit 5 outside of the _vintage engine_.
+
+| Gadget                             | Use Case                                                     | Available in |
+| ---------------------------------- | ------------------------------------------------------------ | ------------ |
+| Retries                            | Retry code-under-test or assertions                          | Core         |
+| Reuse `TestRule`                   | Use an existing JUnit 4 `TestRule` out of its usual context (e.g in JUnit 5 or TestNG) | Core         |
+| `TestRule` composition             | Create `TestRule` objects using lambdas and compose complex operations | JUnit 4      |
+| Pre and post Test Runner lifecycle | Add filters to turn whole test classes off, build a Test Runner via functional programming, insert events into the lifecycle before a Test Runner is able to discover tests. <br />Provides the `@Plugin` annotation to declare plugins to the class lifecycle before a test runner is executed | JUnit 4      |
+| JUnit 4 Test Categories            | Dynamically turn off individual test methods using a combination of an `@Category` annotation and environment variables. | JUnit 4      |
+| Disable Entire Test Suites         | Dynamically turn off an entire test suite ***especially its setup*** using the `TestWrapper` and the `@Category` annotation in conjunction with the `CategoryFilter` plugin | JUnit 4      |
+| Dependent Test Methods             | Rather than manually craft the order of JUnit 4 tests using `@FixMethodOrder`, express how different tests take priority with `@Priority`.<br />Also show how tests depend on each other using `@DependOnPassing`, which also aborts tests that depend on an earlier test that failed.<br />This weaves in the `@Category` capabilities as they would also affect dependent tests. | JUnit 4      |
+| Execute Test Classes in Parallel   | Extends the `Enclosed` runner to run all enclosed tests in parallel. | JUnit 4      |
+
 ## Retries
 
 The `Retryer` class in **TestGadgets Core** allows code to be wrapped with retry logic for testing:
@@ -127,9 +144,92 @@ void testMethod() throws Exception {
 
 The function passed to `executeWithRule` and `execute` can be `void` or can return a value.
 
-## Test Plugins via the `TestWrapper` Runner
+## Compose `TestRule` Objects
 
-Sometimes we wish to take actions before the test runner gets a chance to inspect the test class. For example, we may wish to dynamically generate some resources, or decide NOT to run the test at all.
+We can subclass **JUnit 4** `TestRule` or `ExternalResource` to create custom rules. These methods allow this to be done with Lambdas and for rules to be composed into more complex chains. This can give us control over the exact order of execution of rules, and allow us to weave together complex set up and tear-down behaviour using existing rules.
+
+For example, we may wish to control the construction of some docker containers from [TestContainers](https://www.testcontainers.org/quickstart/junit_4_quickstart/) before some integration test starts running.
+
+We should consider whether to use test rules rather than the usual `@Before` or `@After` lifecycle methods. Simpler is better.
+
+However, some runners may only tolerate injection via rule. For example, the Cucumber runner provides its own hooks, but does not allow a *test lifecycle* hook. It does support `@ClassRule` though, so this allows integration with custom rules like the ones below.
+
+### Create a Test Rule for Before A Test
+
+By calling `Rules.doBefore` we can create a `TestRule` that uses a lambda before each test. This can be a static (`@ClassRule`) or instance level rule:
+
+```java
+private static int testNumber = 0;
+
+@Rule
+public TestRule rule = doBefore(() -> testNumber++);
+
+@Test
+public void theRuleFired() {
+    assertThat(testNumber).isEqualTo(1);
+}
+```
+
+In this example, we've made a rule that increments a counter. We might similarly create a rule that clears a test directory, or restarts a service.
+
+### Create a Test Rule for After A Test
+
+For creating a rule to fire after a test, then we can use `doAfter`:
+
+```java
+@Rule
+public TestRule rule = doAfter(() -> testNumber++);
+```
+
+### Create a Test Rule with Before and After Hooks
+
+The pair of `ThrowingRunnable`s that constitute a lambda implementation of a `TestRule` can be used with `Rules.asRule`:
+
+```java
+@Rule
+public TestRule rule = asRule(() -> testNumber++, () -> testNumber--);
+```
+
+Though in this example, the rule is not doing anything interesting, we could easily hook this up to a resource that needs construction and destruction.
+
+**Note:** as per the `ExternalResource` interface from JUnit 4, a failed `before` doesn't get its `after` called.
+
+### Making Custom Statements
+
+The internal `asStatement` function is also exposed for cases where you're composing your own test rule and wish to make use of the generic logic to wrap calls to the inner `Statement` with calls to the runnable. This implementation is the same core as inside `ExternalResource`.
+
+### Composing `TestRule` Objects
+
+If we have a series of `TestRule` objects and want to control the order in which they initialise, then we can wrap them into a single `TestRule` using `Rules.compose`. This may be essential if we're mixing existing test resource objects with custom code, especially with [test runners that do not provide](https://codingcraftsman.wordpress.com/2020/01/20/extending-the-cucumber-test-lifecycle/) a `@BeforeClass` hook - e.g. *Cucumber*.
+
+Let's say we want to set some environment variables to some test temp directories for our code to use. We have the `TemporaryFolder` rule that could create a temporary folder, the` EnvironmentVariablesRule` to help us set environment variables, and we can put some custom code in between to hook everything together, so that our system starts up with the right environment variables set, and everything is tidied away at the end.
+
+Let's define our resources, but without marking any of them as rules:
+
+```java
+private static File folder1;
+private static File folder2;
+private static TemporaryFolder temporaryFolder = new TemporaryFolder();
+private static EnvironmentVariablesRule environmentVariablesRule = new EnvironmentVariablesRule();
+```
+
+Now we can construct the equivalent of a `@BeforeClass` method to use these rules in a certain order to build up the test. This allows us to mix rules and non rules. We'll have the `TemporaryFolder` created first, then we'll have some ad-hoc rules to create directories with it, then we'll initialize the environment variables rule, and use it to set some environment variables with these folders in:
+
+```java
+@ClassRule
+public static TestRule setUpEnvironment = compose(temporaryFolder,
+    doBefore(() -> folder1 = temporaryFolder.newFolder("f1")),
+    doBefore(() -> folder2 = temporaryFolder.newFolder("f2")),
+    environmentVariablesRule,
+    doBefore(() -> environmentVariablesRule.set("FOLDER1", folder1.getAbsolutePath())
+        .set("FOLDER2", folder2.getAbsolutePath())));
+```
+
+This works well for things like setting up docker containers using *Testcontainers* and then putting their resources into environment or static variables for integration test code to pick up.
+
+## Behaviour Outside the Test Runner using Test Plugins and the `TestWrapper` Runner
+
+**In JUnit 4** we may wish to take actions before the test runner gets a chance to inspect the test class. For example, we may wish to dynamically generate some resources, or decide NOT to run the test at all.
 
 Use cases:
 
@@ -142,11 +242,11 @@ To do this, change the runner of the test to `TestWrapper`
 ```java
 @RunWith(TestWrapper.class)
 public class SomeTest {
-  
+
 }
 ```
 
-Then you can add plugins as `public static` fields, and the plugins will be executed by the `TestWrapper` in a lifecycle surrounding the actual test runner. 
+Then you can add plugins as `public static` fields, and the plugins will be executed by the `TestWrapper` in a lifecycle surrounding the actual test runner.
 
 There are three types of plugin, each of which is annotated with `@Plugin`.
 
@@ -165,22 +265,22 @@ There can be any number of these plugins, and a plugin may implement multiple of
 
 ### Which Runner Runs the Test?
 
-The `TestWrapper` creates a parent test with the tests run by a child runner inside. This is like using the `Enclosed` runner, but without having to specifically declare an inner test. The default delegates to the standard JUnit `BlockJUnit4Runner` so all test features inside a simple `TestWrapper` run class will work normally. 
+The `TestWrapper` creates a parent test with the tests run by a child runner inside. This is like using the `Enclosed` runner, but without having to specifically declare an inner test. The default delegates to the standard JUnit `BlockJUnit4Runner` so all test features inside a simple `TestWrapper` run class will work normally.
 
 However, the `WrapperOptions` annotation can be added to choose a different runner:
 
 ```java
 @RunWith(TestWrapper.class)
-@WrapperOptions(runnerClass = SpringJUnit4ClassRunner.class)
+@WrapperOptions(runWith = SpringJUnit4ClassRunner.class)
 ... spring annotations ...
 public class SomeSpringTest {
-  
+
 }
 ```
 
 ### Comparison with `@BeforeClass` and `@Rule`
 
-If the native features of a JUnit class can be used, then they should be. 
+If the native features of a JUnit class can be used, then they should be.
 
 There are times, however, when it's necessary to do something before the test runner you are using has a chance to execute its default behaviour. These plugins take control before the real runner gets to do something. This part of the lifecycle is impossible to control any other way.
 
@@ -271,11 +371,11 @@ The category filter can be achieved by using the `TestWrapper` along with the te
 
 ```java
 @RunWith(TestWrapper.class)
-@Wrapperptions(runnerClass = Cucumber.class)
+@Wrapperptions(runWith = Cucumber.class)
 @CucumberOptions(...)
 @Category("IntegrationEnvironmentOnly")
 public class CucumberIntegationTests {
-    // stop the test from running according to the category annotation 
+    // stop the test from running according to the category annotation
     // and current environment variables
     @Plugin
     public static CategoryFilter catgeoryFilter = new CategoryFilter();
@@ -361,10 +461,10 @@ Example:
          @Test
          public void test1() {
          }
-       
+
          // other tests
      }
- 
+
      // allows the child tests to have their own test runners
      @RunWith(SomeOtherRunner.class)
      public static class TestClass2 {

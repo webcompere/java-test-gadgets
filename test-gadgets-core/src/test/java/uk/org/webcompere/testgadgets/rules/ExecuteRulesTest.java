@@ -1,4 +1,4 @@
-package uk.org.webcompere.testgadgets.statement;
+package uk.org.webcompere.testgadgets.rules;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -10,10 +10,10 @@ import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static uk.org.webcompere.testgadgets.statement.Rules.executeWithRule;
-import static uk.org.webcompere.testgadgets.statement.Rules.withRules;
+import static uk.org.webcompere.testgadgets.rules.ExecuteRules.executeWithRule;
+import static uk.org.webcompere.testgadgets.rules.ExecuteRules.withRules;
 
-class RulesTest {
+class ExecuteRulesTest {
 
     @Test
     void canExecuteUsingJUnit4Rule() throws Exception {

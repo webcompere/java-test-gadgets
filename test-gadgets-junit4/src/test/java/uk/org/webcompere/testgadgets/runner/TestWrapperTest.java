@@ -35,7 +35,7 @@ public class TestWrapperTest {
     }
 
     @RunWith(TestWrapper.class)
-    @WrapperOptions(runnerClass = Enclosed.class)
+    @WrapperOptions(runWith = Enclosed.class)
     public static class TestWrapperWrapsAnotherRunner {
         public static class Child {
             @Test

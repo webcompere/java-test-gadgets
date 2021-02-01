@@ -9,6 +9,7 @@ import org.junit.rules.TemporaryFolder;
 import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 import uk.org.webcompere.systemstubs.rules.EnvironmentVariablesRule;
+import uk.org.webcompere.testgadgets.TestResource;
 
 import java.io.File;
 
@@ -52,6 +53,33 @@ public class RulesTest {
 
         @Rule
         public TestRule rule = asRule(() -> testNumber++, () -> testNumber--);
+
+        @Test
+        public void theRuleFired() {
+            assertThat(testNumber).isEqualTo(1);
+        }
+
+        @Test
+        public void theAfterRuleFiredToo() {
+            assertThat(testNumber).isEqualTo(1);
+        }
+    }
+
+    public static class TestRuleFromTestResource {
+        private static int testNumber = 0;
+
+        @Rule
+        public TestRule rule = asRule(new TestResource() {
+            @Override
+            public void setup() {
+                testNumber++;
+            }
+
+            @Override
+            public void teardown() {
+                testNumber--;
+            }
+        });
 
         @Test
         public void theRuleFired() {

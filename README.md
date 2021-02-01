@@ -24,6 +24,8 @@ There is a focus on solving problems with JUnit 4. Migrating to JUnit 5 might be
 | Gadget                             | Use Case                                                     | Available in |
 | ---------------------------------- | ------------------------------------------------------------ | ------------ |
 | Retries                            | Retry code-under-test or assertions                          | Core         |
+| `TestResource`                     | Construct reusable resource management objects for use with the _execute around_ idiom | Core         |
+| JUnit 5 Plugin Extension           | The `PluginExtension` uses `TestResource` objects to create simple plugins for JUnit 5. | Jupiter      |
 | Reuse `TestRule`                   | Use an existing JUnit 4 `TestRule` out of its usual context (e.g in JUnit 5 or TestNG) | Core         |
 | `TestRule` composition             | Create `TestRule` objects using lambdas and compose complex operations | JUnit 4      |
 | Pre and post Test Runner lifecycle | Add filters to turn whole test classes off, build a Test Runner via functional programming, insert events into the lifecycle before a Test Runner is able to discover tests. <br />Provides the `@Plugin` annotation to declare plugins to the class lifecycle before a test runner is executed | JUnit 4      |
@@ -99,6 +101,141 @@ public void nonRetried() {
 ```
 
 Note: if the tests change the state of the test object, then allowing them to retry may cause unexpected side effects.
+
+## Test Resources
+
+The `TestResource` interface provides a generic way to define a resource with a `setup` and `teardown` method.
+
+```java
+TestResource resource = new TestResource() {
+    @Override
+    public void setup() throws Exception {
+        someNumber++;
+    }
+
+    @Override
+    public void teardown() throws Exception {
+        someNumber--;
+    }
+};
+```
+
+Define subclasses of test resources and then use the `execute` method to execute them around a `ThrowingRunnable`,
+
+```java
+// the resource is not set up
+assertThat(someNumber).isZero();
+resource.execute(() -> {
+    // it is set up inside the executable
+    assertThat(someNumber).isEqualTo(1);
+});
+// outside execute the resource is released
+assertThat(someNumber).isZero();
+```
+
+The `execute` method performs the set up and tidies up afterwards. If the lambda passed to `execute` is a `Callable` then the value it returns is returned also.
+
+```java
+// and we can also extract results from within execution
+int result = resource.execute(() -> someNumber);
+assertThat(result).isEqualTo(1);
+```
+
+Multiple test resources can be accumulated into a single `TestResource` with `TestResource.with`:
+
+```java
+TestResource resource1 = new TestResource() {
+    @Override
+    public void setup() throws Exception {
+        someNumber++;
+    }
+
+    @Override
+    public void teardown() throws Exception {
+        someNumber--;
+    }
+};
+
+TestResource resource2 = new TestResource() {
+    @Override
+    public void setup() throws Exception {
+        someNumber *= 10;
+    }
+
+    @Override
+    public void teardown() throws Exception {
+        someNumber /= 10;
+    }
+};
+
+with(resource1, resource2)
+    .execute(() -> assertThat(someNumber).isEqualTo(10));
+```
+
+That resource can then be executed as though a single resource.
+
+**Note**: only test resources successfully set up will have their teardown methods called. Any exception in set up will stop the inner execute from being called, and will teardown resources that set up before that point.
+
+**Note:** the teardown happens in reverse order of set up.
+
+## TestResource Extension for JUnit 5
+
+If you want to make a simple extension for JUnit 5 that initializes and tears down `TestResource` objects, then use the `PluginExtension` and create fields with your test resources, annotated with  `@Plugin`. The test runner will activate them before each test, and tear them down after:
+
+```java
+@ExtendWith(PluginExtension.class)
+class TestResourceIsActiveDuringTest {
+    private String testState;
+
+    @Plugin
+    private TestResource someResource = TestResource.from(() -> testState = "Good",
+                                                          () -> testState = "None");
+
+    @Test
+    void insideTest() {
+        assertThat(testState).isEqualTo("Good");
+    }
+}
+```
+
+Here we have constructed a test resource that temporarily sets a resource up (a simple string for this demo). Within a test method, the resource is set up; it's cleaned up after the test.
+
+The aim is to be able to create a custom resource test extension for JUnit 5 by just defining a subclass of `TestResource`, or even a lambda.
+
+### Plugin Object Automatic Creation
+
+Let's imagine we've created a `TestResource` subclass `TempFileResource` which, when setup, creates a temp file somewhere with some example content in it. Let's say it also has a default constructor.
+
+We can just put it as a field in our test, and the `PluginExtension` will construct it.
+
+```java
+@ExtendWith(PluginExtension.class)
+class FieldIsInitialized {
+    @Plugin
+    private TempFileResource resource;
+
+    @Test
+    void fileIsPresent() {
+        assertThat(resource.getFile()).hasContent("some string");
+    }
+}
+```
+
+Or, if this resource is only useful to some tests, we can inject it into those tests as a parameter:
+
+```java
+@ExtendWith(PluginExtension.class)
+class ParamaterIsInitialized {
+    @Test
+    void fileIsPresent(TempFileResource resource) {
+        assertThat(resource.getFile()).hasContent("some string");
+    }
+}
+```
+
+**Note:** this only works for test resources with default constructors.
+
+`TestResource` will behave similarly in JUnit 4 when converted to `TestRule` objects.
 
 ## Run JUnit4 `TestRule` outside of JUnit 4
 
@@ -227,6 +364,27 @@ public static TestRule setUpEnvironment = compose(temporaryFolder,
 ```
 
 This works well for things like setting up docker containers using *Testcontainers* and then putting their resources into environment or static variables for integration test code to pick up.
+
+### `TestResource` based Rules
+
+The `TestResource` interface can also be used to create a JUnit 4 rule using `asRule`.
+
+```java
+@Rule
+public TestRule rule = asRule(new TestResource() {
+    @Override
+    public void setup() {
+      testNumber++;
+    }
+
+    @Override
+    public void teardown() {
+      testNumber--;
+    }
+});
+```
+
+Using it with an anonymous inner class, as above, is probably less efficient than using the `asRule` method. But if you have created a `TestResource` subclass, for use with its `execute` method, then support for it with `asRule` allows for further reuse.
 
 ## Behaviour Outside the Test Runner using Test Plugins and the `TestWrapper` Runner
 

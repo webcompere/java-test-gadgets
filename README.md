@@ -91,6 +91,7 @@ public void someTest() {
   // would be retried up to the limit of the RetryTests rule
 }
 
+@Test
 @DoNotRetry
 public void nonRetried() {
   // fails immediately without retries

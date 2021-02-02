@@ -21,18 +21,21 @@ _Test Gadgets_ brings together various problems found in real-world construction
 
 There is a focus on solving problems with JUnit 4. Migrating to JUnit 5 might be a better solution in some cases, but there are still test runners out there (Serenity for example) which are not compatible with JUnit 5. In addition, some of the tools in this collection are intended to help with JUnit 5 migration by providing functions to bring in JUnit 4 functionality unavailable in JUnit 5 outside of the _vintage engine_.
 
-| Gadget                             | Use Case                                                     | Available in |
-| ---------------------------------- | ------------------------------------------------------------ | ------------ |
-| Retries                            | Retry code-under-test or assertions                          | Core         |
-| `TestResource`                     | Construct reusable resource management objects for use with the _execute around_ idiom | Core         |
-| JUnit 5 Plugin Extension           | The `PluginExtension` uses `TestResource` objects to create simple plugins for JUnit 5. | Jupiter      |
-| Reuse `TestRule`                   | Use an existing JUnit 4 `TestRule` out of its usual context (e.g in JUnit 5 or TestNG) | Core         |
-| `TestRule` composition             | Create `TestRule` objects using lambdas and compose complex operations | JUnit 4      |
-| Pre and post Test Runner lifecycle | Add filters to turn whole test classes off, build a Test Runner via functional programming, insert events into the lifecycle before a Test Runner is able to discover tests. <br />Provides the `@Plugin` annotation to declare plugins to the class lifecycle before a test runner is executed | JUnit 4      |
-| JUnit 4 Test Categories            | Dynamically turn off individual test methods using a combination of an `@Category` annotation and environment variables. | JUnit 4      |
-| Disable Entire Test Suites         | Dynamically turn off an entire test suite ***especially its setup*** using the `TestWrapper` and the `@Category` annotation in conjunction with the `CategoryFilter` plugin | JUnit 4      |
-| Dependent Test Methods             | Rather than manually craft the order of JUnit 4 tests using `@FixMethodOrder`, express how different tests take priority with `@Priority`.<br />Also show how tests depend on each other using `@DependOnPassing`, which also aborts tests that depend on an earlier test that failed.<br />This weaves in the `@Category` capabilities as they would also affect dependent tests. | JUnit 4      |
-| Execute Test Classes in Parallel   | Extends the `Enclosed` runner to run all enclosed tests in parallel. | JUnit 4      |
+| Gadget                                                       | Use Case                                                     | Available in |
+| ------------------------------------------------------------ | ------------------------------------------------------------ | ------------ |
+| [Retries](#Retries)                                          | Retry code-under-test or assertions                          | Core         |
+| [`TestResources`](#test-resources)                           | Construct reusable resource management objects for use with the _execute around_ idiom | Core         |
+| [JUnit 5 Plugin Extension](\testresource-extension-for-junit-5) | The `PluginExtension` uses `TestResource` objects to create simple plugins for JUnit 5. | Jupiter      |
+| [Reuse `TestRule`](#run-junit4-testrule-outside-of-junit-4)  | Use an existing JUnit 4 `TestRule` out of its usual context (e.g in JUnit 5 or TestNG) | Core         |
+| [`TestRule` composition](#compose-testrule-objects)          | Create `TestRule` objects using lambdas and compose complex operations | JUnit 4      |
+| [Pre and post Test Runner lifecycle](#behaviour-outside-the-test-runner-using-test-plugins-and-the-testwrapper-runner) | Add filters to turn whole test classes off, build a Test Runner via functional programming, insert events into the lifecycle before a Test Runner is able to discover tests. <br />Provides the `@Plugin` annotation to declare plugins to the class lifecycle before a test runner is executed | JUnit 4      |
+| [JUnit 4 Test Categories](#test-categories)                  | Dynamically turn off individual test methods using a combination of an `@Category` annotation and environment variables. | JUnit 4      |
+| [Disable Entire Test Suites](#category-filter)               | Dynamically turn off an entire test suite ***especially its setup*** using the `TestWrapper` and the `@Category` annotation in conjunction with the `CategoryFilter` plugin | JUnit 4      |
+| [Dependent Test Methods](#dependent-tests)                   | Rather than manually craft the order of JUnit 4 tests using `@FixMethodOrder`, express how different tests take priority with `@Priority`.<br />Also show how tests depend on each other using `@DependOnPassing`, which also aborts tests that depend on an earlier test that failed.<br />This weaves in the `@Category` capabilities as they would also affect dependent tests. | JUnit 4      |
+| [Execute Test Classes in Parallel](#parallel-test-execution) | Extends the `Enclosed` runner to run all enclosed tests in parallel. | JUnit 4      |
+| [Execute Custom Code Before `@Nested` test in JUnit 5](#beforeachnested-custom-lifecycle-hook) | Where there are multiple child tests and there's a need to reset state between them | Jupiter      |
+
+**Note:** the examples below are often simplified. Please read the source code of the unit tests for this project for more ideas.
 
 ## Retries
 
@@ -652,6 +655,43 @@ It may be desirable to increase this number if there are more child test classes
 This runner can help with integration tests where there are multiple slow-running independent operations to be executed on different parts of the system.
 
 This could technically be used to create a hierarchy of parallel running tests, though the failure of one test won't affect any of the others.
+
+## `BeforeEachNested` Custom Lifecycle Hook
+
+When using **JUnit Jupiter** with `@Nested` tests, there may be a need to reset some state from the parent test in between each of the nested tests running. E.g. clear a database, or refresh some other resource.
+
+It is possible to use `@BeforeEach` to reset state for nested test method, but this mechanism allows:
+
+- Set up state ONLY for `@Nested` tests - in other words, it does not trigger when any tests in the parent run - in this case it's a selective `@BeforeEach` only for `@Nested` test methods
+- Set up state based on when the test instance of the `@Nested` test is created, rather than specifically when each test method is invoked, allowing classes with `@TestInstance(PER_CLASS)` to have set up run just before the nested test - in this case, it's like a reusable `@BeforeAll` for all `@Nested` tests in the parent class
+
+This is available on the static state of a test class. Add the `LifecycleExtensions` to the test:
+
+```java
+@LifeCycleExtensions
+class ParentClass {
+  
+}
+```
+
+Then add the `@BeforeEachNested` annotation to any static method that you wish. All methods will be executed before each `@Nested` test is created:
+
+```java
+@BeforeEachNested
+static void cleanDatabase() {
+  
+}
+
+@Nested
+class NestedTest {
+    @Test
+    void someTest() {
+        // this method receives a clean state
+    }
+}
+```
+
+This is most useful in integration-type tests, where the parent class sets up some expensive resources, and each `@Nested` class uses those resources, with a `PER_CLASS` test instance lifecycle and a shared cleanup in the `@BeforeEachNested` method.
 
 ## Contributing
 

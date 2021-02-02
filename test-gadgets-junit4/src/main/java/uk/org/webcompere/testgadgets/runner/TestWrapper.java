@@ -85,7 +85,7 @@ public class TestWrapper extends ParentRunner<Runner> {
             .filter(FrameworkMember::isStatic)
             .filter(field -> TestFilter.class.isAssignableFrom(field.getType()))
             .map(this::filterAsPredicate)
-            .allMatch(predicate -> predicate.test((Class)getTestClass().getJavaClass()));
+            .allMatch(predicate -> predicate.test(getTestClass().getJavaClass()));
     }
 
     private TestFilter filterAsPredicate(FrameworkField field) {

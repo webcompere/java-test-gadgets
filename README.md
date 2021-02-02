@@ -248,15 +248,15 @@ Let's use JUnit4's `TemporaryFolder` rule as an example (even though there's a J
 ```java
 @Test
 void testMethod() throws Exception {
-  TemporaryFolder temporaryFolder = new TemporaryFolder();
+    TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-  // let's use this temp folder with some test code
-  executeWithRule(temporaryFolder, () -> {
-    // here, the rule is _active_
-    callSomethingThatUses(temporaryFolder.getRoot());
-  });
+    // let's use this temp folder with some test code
+    executeWithRule(temporaryFolder, () -> {
+        // here, the rule is _active_
+        callSomethingThatUses(temporaryFolder.getRoot());
+    });
 
-  // here the rule has cleaned up
+    // here the rule has cleaned up
 }
 ```
 
@@ -266,17 +266,17 @@ We can also use this pattern to execute multiple rules in sequence. Let's add `E
 // use withRules to construct a set of rules to use together
 @Test
 void testMethod() throws Exception {
-  TemporaryFolder temporaryFolder = new TemporaryFolder();
+    TemporaryFolder temporaryFolder = new TemporaryFolder();
 	EnvironmentVariablesRule environment = new EnvironmentVariables("foo", "bar");
 
-  // let's use this temp folder with some test code
-  withRules(temporaryFolder, environment)
-    .execute(() -> {
-    // here, the rules is _active_
-    callSomethingThatUses(temporaryFolder.getRoot());
-  });
+    // let's use this temp folder with some test code
+    withRules(temporaryFolder, environment)
+        .execute(() -> {
+            // here, the rules is _active_
+            callSomethingThatUses(temporaryFolder.getRoot());
+    });
 
-  // here the rules have been cleaned up
+    // here the rules have been cleaned up
 }
 ```
 
@@ -374,12 +374,12 @@ The `TestResource` interface can also be used to create a JUnit 4 rule using `as
 public TestRule rule = asRule(new TestResource() {
     @Override
     public void setup() {
-      testNumber++;
+        testNumber++;
     }
 
     @Override
     public void teardown() {
-      testNumber--;
+        testNumber--;
     }
 });
 ```

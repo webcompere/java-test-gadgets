@@ -17,8 +17,8 @@ import static uk.org.webcompere.testgadgets.category.CategorySelection.ENVIRONME
 
 /**
  * The tests here can be run in themselves, but should be excluded from a test runner that digs into inner classes.
- * Therefor, they're excluded in the <code>gradle.build</code> file and then brought in explicitly in
- * {@link DependentTestRunnerTestSuite}
+ * Therefore, they're brought in via maven and the {@link DependentTestRunnerTestSuite} but may fail when run
+ * directly in an IDE.
  */
 public class DependentTestRunnerTests {
 

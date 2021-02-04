@@ -4,7 +4,7 @@
 
   <groupId>uk.org.webcompere</groupId>
   <artifactId>test-gadgets-parent</artifactId>
-  <version>1.0.0-SNAPSHOT</version>
+  <version>0.0.10-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>Test Gadgets Parent</name>
@@ -32,7 +32,7 @@
     <connection>scm:git:git://github.com/webcompere/system-stubs.git</connection>
     <developerConnection>scm:git:git@github.com:webcompere/system-stubs.git</developerConnection>
     <url>https://github.com/webcompere/java-test-gadgets/</url>
-    <tag>java-test-gadgets-1.0.0</tag>
+    <tag>test-gadgets-parent-0.0.9</tag>
   </scm>
 
   <modules>
@@ -59,7 +59,7 @@
       <dependency>
         <groupId>uk.org.webcompere</groupId>
         <artifactId>test-gadgets-core</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
+        <version>0.0.10-SNAPSHOT</version>
       </dependency>
 
       <dependency>

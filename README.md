@@ -4,16 +4,48 @@ An assortment of testing tools/tricks for JUnit in Java
 [![Build status](https://ci.appveyor.com/api/projects/status/my25e52wqat798qu?svg=true)](https://ci.appveyor.com/project/ashleyfrieze/java-test-gadgets)
 [![codecov](https://codecov.io/gh/webcompere/java-test-gadgets/branch/main/graph/badge.svg?token=5VV2KJX5KH)](https://codecov.io/gh/webcompere/java-test-gadgets)
 
-- `java-test-gadgets-core` - tools that can be used in any test framework
-- `java-test-gagdets-junit4` - custom plugins for JUnit 4
-- `java-test-gadgets-jupiter` - custom plugins for JUnit 5
+- `test-gadgets-core` - tools that can be used in any test framework
+- `test-gagdets-junit4` - custom plugins for JUnit 4
+- `test-gadgets-jupiter` - custom plugins for JUnit 5
 
 This library contains a few tools to help with TDD and Unit tests. They are largely
 unrelated, and have come out of solving real-world problems.
 
 ## Installation
 
-_tbc_ will be on Maven Central
+Available from Maven Central
+
+### Core
+
+```xml
+<dependency>
+  <groupId>uk.org.webcompere</groupId>
+  <artifactId>test-gadgets-core</artifactId>
+  <version>0.0.9</version>
+</dependency>
+```
+
+### JUnit 4
+
+```xml
+<dependency>
+  <groupId>uk.org.webcompere</groupId>
+  <artifactId>test-gadgets-junit4</artifactId>
+  <version>0.0.9</version>
+</dependency>
+```
+
+### JUnit Jupiter
+
+```xml
+<dependency>
+  <groupId>uk.org.webcompere</groupId>
+  <artifactId>test-gadgets-jupiter</artifactId>
+  <version>0.0.9</version>
+</dependency>
+```
+
+
 
 ## Overview
 

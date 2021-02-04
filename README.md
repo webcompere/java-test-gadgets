@@ -21,19 +21,22 @@ _Test Gadgets_ brings together various problems found in real-world construction
 
 There is a focus on solving problems with JUnit 4. Migrating to JUnit 5 might be a better solution in some cases, but there are still test runners out there (Serenity for example) which are not compatible with JUnit 5. In addition, some of the tools in this collection are intended to help with JUnit 5 migration by providing functions to bring in JUnit 4 functionality unavailable in JUnit 5 outside of the _vintage engine_.
 
-| Gadget                                                       | Use Case                                                     | Available in |
-| ------------------------------------------------------------ | ------------------------------------------------------------ | ------------ |
-| [Retries](#Retries)                                          | Retry code-under-test or assertions                          | Core         |
-| [`TestResources`](#test-resources)                           | Construct reusable resource management objects for use with the _execute around_ idiom | Core         |
-| [JUnit 5 Plugin Extension](\testresource-extension-for-junit-5) | The `PluginExtension` uses `TestResource` objects to create simple plugins for JUnit 5. | Jupiter      |
-| [Reuse `TestRule`](#run-junit4-testrule-outside-of-junit-4)  | Use an existing JUnit 4 `TestRule` out of its usual context (e.g in JUnit 5 or TestNG) | Core         |
-| [`TestRule` composition](#compose-testrule-objects)          | Create `TestRule` objects using lambdas and compose complex operations | JUnit 4      |
-| [Pre and post Test Runner lifecycle](#behaviour-outside-the-test-runner-using-test-plugins-and-the-testwrapper-runner) | Add filters to turn whole test classes off, build a Test Runner via functional programming, insert events into the lifecycle before a Test Runner is able to discover tests. <br />Provides the `@Plugin` annotation to declare plugins to the class lifecycle before a test runner is executed | JUnit 4      |
-| [JUnit 4 Test Categories](#test-categories)                  | Dynamically turn off individual test methods using a combination of an `@Category` annotation and environment variables. | JUnit 4      |
-| [Disable Entire Test Suites](#category-filter)               | Dynamically turn off an entire test suite ***especially its setup*** using the `TestWrapper` and the `@Category` annotation in conjunction with the `CategoryFilter` plugin | JUnit 4      |
-| [Dependent Test Methods](#dependent-tests)                   | Rather than manually craft the order of JUnit 4 tests using `@FixMethodOrder`, express how different tests take priority with `@Priority`.<br />Also show how tests depend on each other using `@DependOnPassing`, which also aborts tests that depend on an earlier test that failed.<br />This weaves in the `@Category` capabilities as they would also affect dependent tests. | JUnit 4      |
-| [Execute Test Classes in Parallel](#parallel-test-execution) | Extends the `Enclosed` runner to run all enclosed tests in parallel. | JUnit 4      |
-| [Execute Custom Code Before `@Nested` test in JUnit 5](#beforeachnested-custom-lifecycle-hook) | Where there are multiple child tests and there's a need to reset state between them | Jupiter      |
+| Gadget                                                       | Use Case                                                     | Available in   |
+| ------------------------------------------------------------ | ------------------------------------------------------------ | -------------- |
+| [Retries](#Retries)                                          | Retry code-under-test or assertions                          | Core           |
+| [`TestResources`](#test-resources)                           | Construct reusable resource management objects for use with the _execute around_ idiom | Core           |
+| [JUnit 5 Plugin Extension](\testresource-extension-for-junit-5) | The `PluginExtension` uses `TestResource` objects to create simple plugins for JUnit 5. | Jupiter        |
+| [Reuse `TestRule`](#run-junit4-testrule-outside-of-junit-4)  | Use an existing JUnit 4 `TestRule` out of its usual context (e.g in JUnit 5 or TestNG) | Core           |
+| [`TestRule` composition](#compose-testrule-objects)          | Create `TestRule` objects using lambdas and compose complex operations | JUnit 4        |
+| [Dangerous `TestRule` adapter](#dangerous-testrule-adapter)  | Let a JUnit 4 `TestRule` be used with an explicit `setup` and `teardown` - this allows the rule to be converted into a `@Plugin` for use with JUnit 5 | Core & Jupiter |
+| [Pre and post Test Runner lifecycle](#behaviour-outside-the-test-runner-using-test-plugins-and-the-testwrapper-runner) | Add filters to turn whole test classes off, build a Test Runner via functional programming, insert events into the lifecycle before a Test Runner is able to discover tests. <br />Provides the `@Plugin` annotation to declare plugins to the class lifecycle before a test runner is executed | JUnit 4        |
+| [JUnit 4 Test Categories](#test-categories)                  | Dynamically turn off individual test methods using a combination of an `@Category` annotation and environment variables. | JUnit 4        |
+| [Disable Entire Test Suites](#category-filter)               | Dynamically turn off an entire test suite ***especially its setup*** using the `TestWrapper` and the `@Category` annotation in conjunction with the `CategoryFilter` plugin | JUnit 4        |
+| [Dependent Test Methods](#dependent-tests)                   | Rather than manually craft the order of JUnit 4 tests using `@FixMethodOrder`, express how different tests take priority with `@Priority`.<br />Also show how tests depend on each other using `@DependOnPassing`, which also aborts tests that depend on an earlier test that failed.<br />This weaves in the `@Category` capabilities as they would also affect dependent tests. | JUnit 4        |
+| [Execute Test Classes in Parallel](#parallel-test-execution) | Extends the `Enclosed` runner to run all enclosed tests in parallel. | JUnit 4        |
+| [Execute Custom Code Before `@Nested` test in JUnit 5](#beforeachnested-custom-lifecycle-hook) | Where there are multiple child tests and there's a need to reset state between them | Jupiter        |
+
+
 
 **Note:** the examples below are often simplified. Please read the source code of the unit tests for this project for more ideas.
 
@@ -388,6 +391,54 @@ public TestRule rule = asRule(new TestResource() {
 ```
 
 Using it with an anonymous inner class, as above, is probably less efficient than using the `asRule` method. But if you have created a `TestResource` subclass, for use with its `execute` method, then support for it with `asRule` allows for further reuse.
+
+## Dangerous `TestRule` Adapter
+
+You have been warned. This may not work!
+
+The aim of this is to break open a JUnit 4 `TestRule` - most likely some sort of `ExternalResource` based rule - where there's no dependency on method or class annotations.
+
+By default a `TestRule` can only decorate the test code, so requires the test code to run inside a `Statement` that the rule creates. While the `ExecuteRules.withRule` functions allow us to use the rule outside of JUnit 4's normal lifecycle, this technique does not lend itself to all use cases.
+
+If we create a `DangerousRuleAdapter` for a `TestRule`, then we can call `setup` to start the rule and `teardown` to stop it:
+
+```java
+// create the adapter
+DangerousRuleAdapter<TemporaryFolder> ruleAdapter = new DangerousRuleAdapter<>(new TemporaryFolder());
+
+// turn the rule on
+ruleAdapter.setup();
+
+// try to use the rule by `get`ting it from the adapter
+File file = ruleAdapter.get().getRoot();
+assertThat(file).exists();
+
+// turn the rule off
+ruleAdapter.teardown();
+
+// see the rule has tidied up
+assertThat(file).doesNotExist();
+```
+
+If you can avoid using this, then do... however, if you want to use a JUnit 4 test rule with JUnit 5...:
+
+```java
+@ExtendWith(PluginExtension.class)
+public class DangerousRuleAdapterExampleTest {
+    @Plugin
+    private DangerousRuleAdapter<TemporaryFolder> adapter = 
+        new DangerousRuleAdapter<>(new TemporaryFolder());
+
+    @Test
+    void theFolderWorks() {
+        assertThat(adapter.get().getRoot()).exists();
+    }
+}
+```
+
+This has ZERO benefit with `TemporaryFolder`, since JUnit 5 has [`TempDir`](https://www.baeldung.com/junit-5-temporary-directory) which does a much better job, natively. However, the combination of the adapter and the `PluginExtension` may provide enough interoperability to use resources from a legacy JUnit 4 library with a new JUnit 5 test suite.
+
+Before [System Stubs](https://github.com/webcompere/system-stubs) replaced it, this technique made it possible to use the JUnit 4 rules of [System Rules](https://stefanbirkner.github.io/system-rules/index.html) with JUnit 5 tests.
 
 ## Behaviour Outside the Test Runner using Test Plugins and the `TestWrapper` Runner
 

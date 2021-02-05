@@ -5,6 +5,7 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
+import org.junit.rules.RuleChain;
 import org.junit.rules.TemporaryFolder;
 import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
@@ -105,6 +106,27 @@ public class RulesTest {
             environmentVariablesRule,
             doBefore(() -> environmentVariablesRule.set("FOLDER1", folder1.getAbsolutePath())
                 .set("FOLDER2", folder2.getAbsolutePath())));
+
+        @Test
+        public void codeUnderTest() {
+            assertThat(new File(System.getenv("FOLDER1"))).exists();
+            assertThat(new File(System.getenv("FOLDER2"))).exists();
+        }
+    }
+
+    public static class IntegrationTestUseCaseWithRuleChain {
+        private static File folder1;
+        private static File folder2;
+        private static TemporaryFolder temporaryFolder = new TemporaryFolder();
+        private static EnvironmentVariablesRule environmentVariablesRule = new EnvironmentVariablesRule();
+
+        @ClassRule
+        public static RuleChain setUpEnvironment = RuleChain.outerRule(temporaryFolder)
+                .around(doBefore(() -> folder1 = temporaryFolder.newFolder("f1")))
+                .around(doBefore(() -> folder2 = temporaryFolder.newFolder("f2")))
+                .around(environmentVariablesRule)
+                .around(doBefore(() -> environmentVariablesRule.set("FOLDER1", folder1.getAbsolutePath())
+                    .set("FOLDER2", folder2.getAbsolutePath())));
 
         @Test
         public void codeUnderTest() {

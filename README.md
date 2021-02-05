@@ -403,6 +403,20 @@ public static TestRule setUpEnvironment = compose(temporaryFolder,
 
 This works well for things like setting up docker containers using *Testcontainers* and then putting their resources into environment or static variables for integration test code to pick up.
 
+The `compose` method is an alternative to JUnit 4's `RuleChain`:
+
+```java
+@ClassRule
+public static RuleChain setUpEnvironment = RuleChain.outerRule(temporaryFolder)
+        .around(doBefore(() -> folder1 = temporaryFolder.newFolder("f1")))
+        .around(doBefore(() -> folder2 = temporaryFolder.newFolder("f2")))
+        .around(environmentVariablesRule)
+        .around(doBefore(() -> environmentVariablesRule.set("FOLDER1", folder1.getAbsolutePath())
+            .set("FOLDER2", folder2.getAbsolutePath())));
+```
+
+The `RuleChain` is more standard, but the `compose` method is more terse.
+
 ### `TestResource` based Rules
 
 The `TestResource` interface can also be used to create a JUnit 4 rule using `asRule`.

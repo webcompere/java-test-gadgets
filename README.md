@@ -56,6 +56,7 @@ There is a focus on solving problems with JUnit 4. Migrating to JUnit 5 might be
 | Gadget                                                       | Use Case                                                     | Available in   |
 | ------------------------------------------------------------ | ------------------------------------------------------------ | -------------- |
 | [Retries](#Retries)                                          | Retry code-under-test or assertions                          | Core           |
+| [ConcurrentTest](#concurrent-test)                           | Run activities in parallel, started at the same time, and wait for all to finish before continuing the test. | Core           |
 | [`TestResources`](#test-resources)                           | Construct reusable resource management objects for use with the _execute around_ idiom | Core           |
 | [JUnit 5 Plugin Extension](\testresource-extension-for-junit-5) | The `PluginExtension` uses `TestResource` objects to create simple plugins for JUnit 5. | Jupiter        |
 | [Reuse `TestRule`](#run-junit4-testrule-outside-of-junit-4)  | Use an existing JUnit 4 `TestRule` out of its usual context (e.g in JUnit 5 or TestNG) | Core           |
@@ -139,6 +140,104 @@ public void nonRetried() {
 ```
 
 Note: if the tests change the state of the test object, then allowing them to retry may cause unexpected side effects.
+
+## Concurrent Test
+
+### Parallel Running
+
+When testing thread-safe code, it's sometimes necessary to run two activities in parallel:
+
+```java
+private Map<String, String> map = new ConcurrentHashMap<>();
+
+@Test
+void doConcurrently() {
+    executeTogether(() -> map.put("a", "b"),
+        () -> map.put("b", "c"));
+
+    assertThat(map).containsExactlyEntriesOf(ImmutableMap.of("a", "b", "c", "d"));
+}
+```
+
+In this example, a unit test for the threadsafety of `ConcurrentHashMap`, the two `put` functions, expressed as different lambdas, are started at approximately the same time. The `executeTogether` function will only return when both activities are finished.
+
+`executeTogether` takes a _varargs_ of `ThrowingRunnable` objects and executes them together, each running on its own temporary thread.
+
+### Repeat the Same Operation Multiple Times
+
+The aim may be to repeatedly execute something against the code under test:
+
+```java
+private Map<String, Integer> map = new ConcurrentHashMap<>();
+
+@Test
+void repeatedlyCallSameFunction() {
+    executeMultiple(12, () -> increment("key"));
+    
+    assertThat(map.get("key")).isEqualTo(12);
+}
+
+private void increment(String value) {
+    map.merge(value, 1, Integer::sum);
+}
+```
+
+In this instance the `increment` function is performing a thread-safe increment on a value in the map, and we're testing what happens when it's called concurrently 12 times. The `executeMultiple` function will start all its 12 worker threads at the same time, and will then wait until they're all done before returning control to the test.
+
+### Repeat the Same Operation on Data
+
+If each operation should consume some data:
+
+```java
+private Multiset<String> set = ConcurrentHashMultiset.create();
+
+@Test
+void addDataSimultaneously() {
+    executeOver(Stream.of("a", "b", "c", "c", "d"), val -> set.add(val));
+    
+    assertThat(set.stream()).containsExactlyInAnyOrder("a", "b", "c", "c", "d");
+}
+```
+
+Here we're testing a threadsafe set that allows duplicates. The `Stream` of input data is provided to the `executeOver` function, and this is delegated, on each worker thread, to a `Consumer` of that data - in this case, the `add` function of the set.
+
+### Using the Index
+
+Both the `executeMultiple` and `executeOver` functions can be used with a consumer lambda that is provided with the index of the current data item.
+
+For `executeMultiple`, we get a consumer of a single value:
+
+```java
+private Map<String, Integer> map = new ConcurrentHashMap<>();
+
+@Test
+void repeatedlyCallSameFunction() {
+    executeMultiple(3, index -> incrementByItemPosition("key", index));
+
+    assertThat(map.get("key")).isEqualTo(6);
+}
+
+private void incrementByItemPosition(String value, int index) {
+    map.merge(value, index + 1, Integer::sum);
+}
+```
+
+With `executeOver` the consumer is provided with the value and the index:
+
+```java
+private Multiset<String> set = ConcurrentHashMultiset.create();
+
+@Test
+void addDataSimultaneously() {
+    executeOver(Stream.of("a", "b", "c", "c", "d"), (value, index) -> set.add(value + index));
+
+    assertThat(set.stream()).containsExactlyInAnyOrder("a0", "b1", "c2", "c3", "d4");
+}
+```
+
+### Error Handling
+
+If any of the worker threads ends in error, then an `AssertionError` will be thrown. This means workers can execute assertions that fail, but it may be hard to identify the exact cause of failure, as the thrown error may not contain the full text of the error.
 
 ## Test Resources
 

@@ -57,6 +57,7 @@ There is a focus on solving problems with JUnit 4. Migrating to JUnit 5 might be
 | ------------------------------------------------------------ | ------------------------------------------------------------ | -------------- |
 | [Retries](#Retries)                                          | Retry code-under-test or assertions                          | Core           |
 | [ConcurrentTest](#concurrent-test)                           | Run activities in parallel, started at the same time, and wait for all to finish before continuing the test. | Core           |
+| [Measure Concurrency](#measure-concurrency)                  | Measure the work done by a thread pool by tapping into it during a test to see how much concurrency there is and how much the pool is in use during the activity. | Core           |
 | [`TestResources`](#test-resources)                           | Construct reusable resource management objects for use with the _execute around_ idiom | Core           |
 | [JUnit 5 Plugin Extension](\testresource-extension-for-junit-5) | The `PluginExtension` uses `TestResource` objects to create simple plugins for JUnit 5. | Jupiter        |
 | [Reuse `TestRule`](#run-junit4-testrule-outside-of-junit-4)  | Use an existing JUnit 4 `TestRule` out of its usual context (e.g in JUnit 5 or TestNG) | Core           |
@@ -238,6 +239,91 @@ void addDataSimultaneously() {
 ### Error Handling
 
 If any of the worker threads ends in error, then an `AssertionError` will be thrown. This means workers can execute assertions that fail, but it may be hard to identify the exact cause of failure, as the thrown error may not contain the full text of the error.
+
+## Measure Concurrency
+
+It's possible that this will help with experimentation on a multi-threaded solution, or may be more relevant in an integration test. It should also be pointed out that multi-threaded code does not perform exactly consistently between test runs, so assertions with tolerances should be considered.
+
+When we have multi-threaded code, we may wish to understand:
+
+- The maximum concurrency reached
+- Which threads were involved
+- How much each thread was used during the test
+
+To achieve this we need to create a `Meter` and then tell it when an event starts on each of our threads by calling `startEvent` and tell it when an event ends by calling `endEvent`. This can happen many times for each thread as the worker in the pool does the next job, etc. The current thread is picked up by the `Meter`. If we call `startEvent` without calling `endEvent` then the first event is assumed to have finished instantly, and the next event is assumed to have started at the time `startEvent` was called. (In this situation, measuring max concurrency and utilization won't help).
+
+```java
+private Meter meter = new Meter();
+
+@Test
+void whenOneThingHappensThenSomeThreads() {
+    // somewhere in the code under test, insert a call to...
+    meter.startEvent();
+
+    assertThat(meter.getThreadCount()).isOne();
+}
+```
+
+With just `startEvent` we can measure how many threads were involved... 
+
+### Tapping The Code Under Test
+
+The `Meter` library is intended to be very quick and threadsafe during the test run, but we need to get the code under test to call into the test library. This means decorating the actual test code with calls into the meter. The easiest way to do that is to use `meter.wrapEvent`. Let's say you have some code which is going to use a functional interface like `Supplier` or `Runnable` or `Callable`. You can take the actual callable and construct a new one using `meter.wrapEvent`:
+
+```java
+// let's say this is the supplier from our real code under test
+Supplier<String> someSupplier = () -> "Hello";
+
+// we can replace it with a wrapped version
+Supplier<String> wrappedSupplier = () -> meter.wrapEvent(someSupplier::get);
+
+// then when the code under test uses it
+wrappedSupplier.get();
+
+// the meter is aware
+assertThat(meter.getThreadCount()).isOne();
+```
+
+This may also be done using a _Mockito_ `spy`:
+
+```java
+@Spy
+private DoThing someAction = new DoThing();
+
+private Meter meter = new Meter();
+
+@Test
+void hookSpyToMeter() throws Exception {
+    willAnswer(invocation -> meter.wrapEvent(wrap(invocation::callRealMethod)))
+        .given(someAction).doThing();
+
+    executeMultiple(12, someAction::doThing);
+
+    assertThat(meter.getThreadCount()).isEqualTo(12);
+    assertThat(meter.getStatistics().getMaxConcurrency()).isEqualTo(12);
+}
+```
+
+In this example the action inside `DoThing` is spied upon by _Mockito_ and the `willAnswer` (also works with `doAnswer`) has been set to tap the invocation. Note the use of `GenericThrowingCallable.wrap` in the above to take the `Throwable` of the invocation and convert it to the right signature.
+
+### Statistics
+
+If you're measuring utilization, then note it will be measured from the first measured event unless you call `start` on the `Meter` object at the start of the test. Similarly, utilization will be measured either until the last recorded end, or the last invocation of `stop` on the `Meter`.
+
+When the test run is over, you can calculate statistics - calculateStatistics()` - and then make assertions on concurrency, utilisation, number of threads involved etc:
+
+```java
+// should have been close to 100% (1.0) utilization
+assertThat(meter.calculateStatistics().getUtilization()).isCloseTo(1.0, withPercentage(90));
+
+// should have processed two events
+assertThat(meter.calculateStatistics().getTotalEvents()).isEqualTo(2);
+
+// should have achieved maximum concurrency of 12
+assertThat(meter.calculateStatistics().getMaxConcurrency()).isEqualTo(12);
+```
+
+Note, for mulitple assertions on the statistics, store the statistics in a temp variable as they can require a lot of calculation if there were lots of events.
 
 ## Test Resources
 

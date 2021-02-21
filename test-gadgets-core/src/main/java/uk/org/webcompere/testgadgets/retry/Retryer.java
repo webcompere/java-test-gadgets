@@ -27,6 +27,11 @@ public final class Retryer {
         private int maxTimes;
         private Duration sleepBetween;
 
+        /**
+         * Construct a retries object
+         * @param maxTimes the maximum number of times to try
+         * @param sleepBetween the amount of time to wait before the next try
+         */
         public Retries(int maxTimes, Duration sleepBetween) {
             this.maxTimes = maxTimes;
             this.sleepBetween = sleepBetween;

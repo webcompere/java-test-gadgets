@@ -29,8 +29,8 @@
   </developers>
 
   <scm>
-    <connection>scm:git:git://github.com/webcompere/system-stubs.git</connection>
-    <developerConnection>scm:git:git@github.com:webcompere/system-stubs.git</developerConnection>
+    <connection>scm:git:git://github.com/webcompere/java-test-gadgets.git</connection>
+    <developerConnection>scm:git:git@github.com:webcompere/java-test-gadgets.git</developerConnection>
     <url>https://github.com/webcompere/java-test-gadgets/</url>
     <tag>test-gadgets-parent-0.0.9</tag>
   </scm>

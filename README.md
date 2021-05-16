@@ -45,8 +45,6 @@ Available from Maven Central
 </dependency>
 ```
 
-
-
 ## Overview
 
 _Test Gadgets_ brings together various problems found in real-world construction of JUnit tests. These problems have often been encountered in integration tests, but may help constructing any sort of tests with JUnit.
@@ -70,9 +68,9 @@ There is a focus on solving problems with JUnit 4. Migrating to JUnit 5 might be
 | [Execute Test Classes in Parallel](#parallel-test-execution) | Extends the `Enclosed` runner to run all enclosed tests in parallel. | JUnit 4        |
 | [Execute Custom Code Before `@Nested` test in JUnit 5](#beforeachnested-custom-lifecycle-hook) | Where there are multiple child tests and there's a need to reset state between them | Jupiter        |
 
-
-
 **Note:** the examples below are often simplified. Please read the source code of the unit tests for this project for more ideas.
+
+Further ideas and examples can be found in [Examples.md](Examples.md).
 
 ## Retries
 
@@ -174,7 +172,7 @@ private Map<String, Integer> map = new ConcurrentHashMap<>();
 @Test
 void repeatedlyCallSameFunction() {
     executeMultiple(12, () -> increment("key"));
-    
+
     assertThat(map.get("key")).isEqualTo(12);
 }
 
@@ -195,7 +193,7 @@ private Multiset<String> set = ConcurrentHashMultiset.create();
 @Test
 void addDataSimultaneously() {
     executeOver(Stream.of("a", "b", "c", "c", "d"), val -> set.add(val));
-    
+
     assertThat(set.stream()).containsExactlyInAnyOrder("a", "b", "c", "c", "d");
 }
 ```
@@ -264,7 +262,7 @@ void whenOneThingHappensThenSomeThreads() {
 }
 ```
 
-With just `startEvent` we can measure how many threads were involved... 
+With just `startEvent` we can measure how many threads were involved...
 
 ### Tapping The Code Under Test
 
@@ -657,7 +655,7 @@ If you can avoid using this, then do... however, if you want to use a JUnit 4 te
 @ExtendWith(PluginExtension.class)
 public class DangerousRuleAdapterExampleTest {
     @Plugin
-    private DangerousRuleAdapter<TemporaryFolder> adapter = 
+    private DangerousRuleAdapter<TemporaryFolder> adapter =
         new DangerousRuleAdapter<>(new TemporaryFolder());
 
     @Test
@@ -952,7 +950,7 @@ This is available on the static state of a test class. Add the `LifecycleExtensi
 ```java
 @LifeCycleExtensions
 class ParentClass {
-  
+
 }
 ```
 
@@ -961,7 +959,7 @@ Then add the `@BeforeEachNested` annotation to any static method that you wish. 
 ```java
 @BeforeEachNested
 static void cleanDatabase() {
-  
+
 }
 
 @Nested

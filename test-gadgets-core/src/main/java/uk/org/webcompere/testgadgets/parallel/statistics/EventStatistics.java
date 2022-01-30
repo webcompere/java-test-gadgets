@@ -1,5 +1,7 @@
 package uk.org.webcompere.testgadgets.parallel.statistics;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -19,6 +21,7 @@ public class EventStatistics<T> {
      * @param maxConcurrency maximum concurrency reached
      * @param totalEvents the total events recorded
      */
+    @SuppressFBWarnings("EI2")
     public EventStatistics(Map<T, Double> utilizations, int maxConcurrency, int totalEvents) {
         this.utilizations = utilizations;
         this.maxConcurrency = maxConcurrency;

@@ -42,6 +42,9 @@ public class TestWrapper extends ParentRunner<Runner> {
     public TestWrapper(Class<?> klass, RunnerBuilder builder) throws InitializationError {
         super(klass);
 
+        // the real test runner we're about to construct may be affected by our setup
+        beforeAll();
+
         WrapperOptions options = getTestClass().getAnnotation(WrapperOptions.class);
         if (options == null) {
             actualRunner = new BlockJUnit4ClassRunner(klass);
@@ -62,7 +65,7 @@ public class TestWrapper extends ParentRunner<Runner> {
             System.out.println("Filtering out: " + getTestClass().getJavaClass().getCanonicalName());
             return emptyList();
         }
-        beforeAll();
+
         return singletonList(actualRunner);
     }
 

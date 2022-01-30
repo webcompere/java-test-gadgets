@@ -1,5 +1,6 @@
 package uk.org.webcompere.testgadgets.plugin;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import uk.org.webcompere.testgadgets.TestResource;
 
 /**
@@ -9,6 +10,7 @@ public class ReferenceCountingTestResource<T extends TestResource> implements Te
     private int referenceCount = 0;
     private T decoratee;
 
+    @SuppressFBWarnings("EI2")
     public ReferenceCountingTestResource(T decoratee) {
         this.decoratee = decoratee;
     }
@@ -46,6 +48,7 @@ public class ReferenceCountingTestResource<T extends TestResource> implements Te
      * Access the decorated test resource
      * @return the decorated test resource
      */
+    @SuppressFBWarnings("EI")
     public T getDecoratee() {
         return decoratee;
     }

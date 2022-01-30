@@ -1,6 +1,9 @@
 version: '{build}'
 image:
   - Ubuntu
+stack: jdk 11
+cache:
+  - /home/appveyor/.m2
 build_script:
   - ./mvnw clean package -DskipTests
 test_script:

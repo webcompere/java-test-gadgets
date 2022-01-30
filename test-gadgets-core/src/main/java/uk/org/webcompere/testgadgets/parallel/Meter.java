@@ -80,7 +80,7 @@ public class Meter {
      * Calculate the statistics for the events so far
      * @return the {@link EventStatistics} for working out utilisation etc
      */
-    public EventStatistics calculateStatistics() {
+    public EventStatistics<Thread> calculateStatistics() {
         return eventTracking.calculateStatistics();
     }
 

@@ -28,7 +28,7 @@ class MeterTest {
         // let's say this is the supplier from our real code under test
         Supplier<String> someSupplier = () -> "Hello";
 
-        // we can replace it with a wrapped versio
+        // we can replace it with a wrapped version
         Supplier<String> wrappedSupplier = () -> meter.wrapEvent(someSupplier::get);
 
         // then when the code under test uses it

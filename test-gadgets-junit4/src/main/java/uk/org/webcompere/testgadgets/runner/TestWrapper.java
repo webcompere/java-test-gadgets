@@ -1,5 +1,6 @@
 package uk.org.webcompere.testgadgets.runner;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.junit.internal.builders.AnnotatedBuilder;
 import org.junit.runner.Description;
 import org.junit.runner.Runner;
@@ -30,6 +31,7 @@ import static java.util.Collections.singletonList;
  * a {@link WrapperOptions} annotation on the test class, where the target runner can be switched to something else.
  *
  */
+@SuppressFBWarnings(value = "MC_OVERRIDABLE_METHOD_CALL_IN_CONSTRUCTOR", justification = "false positive")
 public class TestWrapper extends ParentRunner<Runner> {
     private ParentRunner<?> actualRunner;
 

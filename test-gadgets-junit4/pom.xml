@@ -5,20 +5,20 @@
   <parent>
     <groupId>uk.org.webcompere</groupId>
     <artifactId>test-gadgets-parent</artifactId>
-    <version>0.0.10-SNAPSHOT</version>
+    <version>0.0.10</version>
     <relativePath>../</relativePath>
   </parent>
 
   <artifactId>test-gadgets-junit4</artifactId>
-  <version>0.0.10-SNAPSHOT</version>
+  <version>0.0.10</version>
   <packaging>jar</packaging>
 
   <name>Test Gadgets JUnit4</name>
   <description>An assortment of testing tools/tricks for JUnit in Java</description>
 
   <properties>
-    <maven.compiler.source>1.8</maven.compiler.source>
-    <maven.compiler.target>1.8</maven.compiler.target>
+    <maven.compiler.source>11</maven.compiler.source>
+    <maven.compiler.target>1</maven.compiler.target>
   </properties>
 
   <dependencies>

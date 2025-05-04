@@ -1,7 +1,10 @@
 # Java Test Gadgets
 An assortment of testing tools/tricks for JUnit in Java
 
-[![Build status](https://ci.appveyor.com/api/projects/status/my25e52wqat798qu?svg=true)](https://ci.appveyor.com/project/ashleyfrieze/java-test-gadgets)
+![Java](https://img.shields.io/badge/java-11-%23ED8B00.svg?logo=openjdk&logoColor=white)
+![Maven](https://img.shields.io/badge/apachemaven-C71A36.svg?logo=apachemaven&logoColor=white)
+![Maven Central Version](https://img.shields.io/maven-central/v/uk.org.webcompere/test-gadgets-parent)
+[![Build](https://github.com/webcompere/java-test-gadgets/actions/workflows/build-actions.yml/badge.svg)](https://github.com/webcompere/java-test-gadgets/actions/workflows/build-actions.yml)
 [![codecov](https://codecov.io/gh/webcompere/java-test-gadgets/branch/main/graph/badge.svg?token=5VV2KJX5KH)](https://codecov.io/gh/webcompere/java-test-gadgets)
 
 - `test-gadgets-core` - tools that can be used in any test framework

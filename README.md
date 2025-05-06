@@ -190,6 +190,22 @@ public TestDataFieldsRule testDataFieldsRule = new TestDataFieldsRule(testDataLo
 
 This will instantiate all instance fields with test data.
 
+For instantiating static fields, we need the `TestDataClassRule`:
+
+```java
+@ClassRule
+public static TestDataClassRule testDataClassRule();
+
+@TestData({"requests", "someRequest"})
+private static SomeRequest someRequest;
+```
+
+The class rule will be executed once at the start of the test. Both rules can be used in the same test
+and they can share the same loader object.
+
+> Note: for caching to work, there should be a single static instance of the test data loader
+> used with the rule.
+
 ### JUnit 5
 
 To use a test data loader with JUnit 5, we need the `TestDataExtension`
@@ -201,6 +217,18 @@ class TestClass {
     // will load `src/test/resources/someRequest1.json`
     @TestData
     private SomeRequest someRequest1;
+}
+```
+
+The extension will also populate static fields:
+
+```java
+@TestDataExtension
+class TestClass {
+
+    // will load `src/test/resources/requests/someRequest-57.json`
+    @TestData({"requests", "someRequest-57.json"})
+    private static SomeRequest someRequest;
 }
 ```
 

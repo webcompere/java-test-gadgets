@@ -2,6 +2,7 @@ package uk.org.webcompere.testgadgets;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,6 +21,24 @@ class TestDataExtensionTest {
         @Test
         void loadsFile() {
             assertThat(somefile).isEqualTo("hello world");
+        }
+    }
+
+    @Nested
+    @ExtendWith(TestDataExtension.class)
+    class BindingAvailableInBeforeEach {
+
+        @TestData("somefile.txt")
+        private String somefile;
+
+        @BeforeEach
+        void beforeEach() {
+            somefile = somefile + "!!!!!";
+        }
+
+        @Test
+        void loadsFile() {
+            assertThat(somefile).isEqualTo("hello world!!!!!");
         }
     }
 }

@@ -7,7 +7,7 @@ import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.Statement;
 
 /**
- * Load test data into the fields
+ * Load test data into the fields. To be used with <code>@Rule</code>
  */
 public class TestDataFieldsRule implements MethodRule {
     private final TestDataLoader loader;

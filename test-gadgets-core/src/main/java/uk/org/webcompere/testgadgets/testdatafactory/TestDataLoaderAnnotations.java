@@ -32,6 +32,15 @@ public class TestDataLoaderAnnotations {
     }
 
     /**
+     * Apply the right test data to the static fields
+     * @param loaderInstance the loader to use
+     * @param testClass the class to write to
+     */
+    public static void bindAnnotatedStaticFields(TestDataLoader loaderInstance, Class<?> testClass) throws Exception {
+        setupFields(loaderInstance, testClass, testClass, TestDataLoaderAnnotations::isStaticField);
+    }
+
+    /**
      * Using this loader and this annotation, load the correct value
      * @param loaderInstance the loader which will populate the value
      * @param name the name of the field/parameter

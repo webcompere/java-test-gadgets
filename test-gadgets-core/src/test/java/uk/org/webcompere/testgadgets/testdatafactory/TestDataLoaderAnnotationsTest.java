@@ -2,6 +2,7 @@ package uk.org.webcompere.testgadgets.testdatafactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.org.webcompere.testgadgets.testdatafactory.TestDataLoaderAnnotations.bindAnnotatedFields;
+import static uk.org.webcompere.testgadgets.testdatafactory.TestDataLoaderAnnotations.bindAnnotatedStaticFields;
 
 import java.nio.file.Paths;
 import java.util.function.Supplier;
@@ -13,6 +14,15 @@ class TestDataLoaderAnnotationsTest {
         private Catchphrase somejson;
 
         public Catchphrase getSomejson() {
+            return somejson;
+        }
+    }
+
+    public static class StaticBoundClass {
+        @TestData
+        private static Catchphrase somejson;
+
+        public static Catchphrase getSomejson() {
             return somejson;
         }
     }
@@ -144,5 +154,15 @@ class TestDataLoaderAnnotationsTest {
         bindAnnotatedFields(loader, bound);
 
         assertThat(bound.getSomejson().get().getName()).isEqualTo("Gadget");
+    }
+
+    @Test
+    void canLoadStaticUsingDefaults() throws Exception {
+        var loader = new TestDataLoader();
+        loader.addPath(Paths.get("loader"));
+
+        bindAnnotatedStaticFields(loader, StaticBoundClass.class);
+
+        assertThat(StaticBoundClass.getSomejson().getName()).isEqualTo("Gadget");
     }
 }

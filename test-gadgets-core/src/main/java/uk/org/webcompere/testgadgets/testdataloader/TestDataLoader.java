@@ -63,14 +63,13 @@ public class TestDataLoader {
      * @param <T> the type of object to load
      * @throws IOException on any error
      */
-    @SuppressFBWarnings("NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE")
     @SuppressWarnings("unchecked")
     public <T> T load(Path pathToFile, Type type, boolean useCache) throws IOException {
-        if (useCache) {
+        if (isImmutable(type) || useCache) {
             try {
                 return (T) cache.computeIfAbsent(pathToFile, (path) -> {
                     try {
-                        return load(pathToFile, type, false);
+                        return loadWithLoaders(pathToFile, type);
                     } catch (IOException e) {
                         throw new RuntimeException("Error loading " + pathToFile + " " + e.getMessage(), e);
                     }
@@ -80,6 +79,11 @@ public class TestDataLoader {
             }
         }
 
+        return loadWithLoaders(pathToFile, type);
+    }
+
+    @SuppressFBWarnings("NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE")
+    private <T> T loadWithLoaders(Path pathToFile, Type type) throws IOException {
         Path resolved = root.resolve(pathToFile);
 
         var fileExtension = getExtension(resolved);
@@ -123,6 +127,19 @@ public class TestDataLoader {
     public TestDataLoader setImmutableMode(Immutable immutableMode) {
         this.immutableMode = immutableMode;
         return this;
+    }
+
+    private static boolean isImmutable(Type type) {
+        if (type.equals(String.class)) {
+            return true;
+        }
+
+        return type instanceof Class && isRecord((Class<?>)type);
+    }
+
+    private static boolean isRecord(Class<?> clazz) {
+        return clazz.getSuperclass() != null &&
+            clazz.getSuperclass().getName().equals("java.lang.Record");
     }
 
     private static Optional<String> getExtension(Path path) {

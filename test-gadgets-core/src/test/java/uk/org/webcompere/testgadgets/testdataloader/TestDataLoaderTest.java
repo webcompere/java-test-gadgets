@@ -55,23 +55,33 @@ class TestDataLoaderTest {
     }
 
     @Test
-    void loadingTwiceWithNoCacheProducesDifferentObjects() throws Exception {
+    void loadingStringTwiceWithNoCacheProducesSameObjectsAsImmutable() throws Exception {
         var loader = new TestDataLoader();
         loader.addPath(Paths.get("loader"));
         String text1 = loader.load(Paths.get("somefile.txt"), String.class, false);
         String text2 = loader.load(Paths.get("somefile.txt"), String.class, false);
 
-        assertThat(text1).isNotSameAs(text2);
+        assertThat(text1).isSameAs(text2);
+    }
+
+    @Test
+    void loadingTwiceWithNoCacheProducesDifferentObjects() throws Exception {
+        var loader = new TestDataLoader();
+        loader.addPath(Paths.get("loader"));
+        Object obj1 = loader.load(Paths.get("somejson.json"), Object.class, false);
+        Object obj2 = loader.load(Paths.get("somejson.json"), Object.class, false);
+
+        assertThat(obj1).isNotSameAs(obj2);
     }
 
     @Test
     void loadingTwiceWithCacheProducesSameObject() throws Exception {
         var loader = new TestDataLoader();
         loader.addPath(Paths.get("loader"));
-        String text1 = loader.load(Paths.get("somefile.txt"), String.class, true);
-        String text2 = loader.load(Paths.get("somefile.txt"), String.class, true);
+        Object obj1 = loader.load(Paths.get("somejson.json"), Object.class, true);
+        Object obj2 = loader.load(Paths.get("somejson.json"), Object.class, true);
 
-        assertThat(text1).isSameAs(text2);
+        assertThat(obj1).isSameAs(obj2);
     }
 
     @Test

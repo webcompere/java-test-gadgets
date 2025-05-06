@@ -10,6 +10,7 @@ import java.util.Optional;
 import java.util.function.Predicate;
 
 import static java.lang.reflect.Modifier.isStatic;
+import static java.util.function.Predicate.not;
 import static org.junit.platform.commons.util.AnnotationUtils.findAnnotatedFields;
 import static org.junit.platform.commons.util.ReflectionUtils.makeAccessible;
 import static org.junit.platform.commons.util.ReflectionUtils.tryToReadFieldValue;
@@ -127,12 +128,6 @@ public class PluginExtension implements TestInstancePostProcessor,
 
     private static boolean isStaticField(Field f) {
         return isStatic(f.getModifiers());
-    }
-
-    // if only Java8 had thought to have this.. the equivalent of the Predicate.not from
-    // later versions
-    private static <T> Predicate<T> not(Predicate<T> predicate) {
-        return predicate.negate();
     }
 
     /**

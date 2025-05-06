@@ -1,4 +1,4 @@
-package uk.org.webcompere.testgadgets.testdataloader;
+package uk.org.webcompere.testgadgets.testdatafactory;
 
 public class Catchphrase {
     private String name;

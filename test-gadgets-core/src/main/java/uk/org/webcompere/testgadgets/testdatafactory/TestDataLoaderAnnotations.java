@@ -1,4 +1,4 @@
-package uk.org.webcompere.testgadgets.testdataloader;
+package uk.org.webcompere.testgadgets.testdatafactory;
 
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;

@@ -1,4 +1,4 @@
-package uk.org.webcompere.testgadgets.testdataloader;
+package uk.org.webcompere.testgadgets.testdatafactory;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,6 +23,15 @@ class TestDataLoaderTest {
     void loaderCanLoadTextFile() throws Exception {
         var loader = new TestDataLoader();
         loader.addPath(Paths.get("loader"));
+        String text = loader.load(Paths.get("somefile.txt"), String.class, false);
+
+        assertThat(text).isEqualTo("Line 1\nLine 2");
+    }
+
+    @Test
+    void loaderCanLoadTextFileAfterRerooting() throws Exception {
+        var loader = new TestDataLoader();
+        loader.setRoot(Paths.get("src", "test", "resources", "loader"));
         String text = loader.load(Paths.get("somefile.txt"), String.class, false);
 
         assertThat(text).isEqualTo("Line 1\nLine 2");

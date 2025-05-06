@@ -54,94 +54,155 @@ _Test Gadgets_ brings together various problems found in real-world construction
 
 There is a focus on solving problems with JUnit 4. Migrating to JUnit 5 might be a better solution in some cases, but there are still test runners out there (Serenity for example) which are not compatible with JUnit 5. In addition, some of the tools in this collection are intended to help with JUnit 5 migration by providing functions to bring in JUnit 4 functionality unavailable in JUnit 5 outside of the _vintage engine_.
 
-| Gadget                                                       | Use Case                                                     | Available in   |
-| ------------------------------------------------------------ | ------------------------------------------------------------ | -------------- |
-| [Retries](#Retries)                                          | Retry code-under-test or assertions                          | Core           |
-| [ConcurrentTest](#concurrent-test)                           | Run activities in parallel, started at the same time, and wait for all to finish before continuing the test. | Core           |
-| [Measure Concurrency](#measure-concurrency)                  | Measure the work done by a thread pool by tapping into it during a test to see how much concurrency there is and how much the pool is in use during the activity. | Core           |
-| [`TestResources`](#test-resources)                           | Construct reusable resource management objects for use with the _execute around_ idiom | Core           |
-| [JUnit 5 Plugin Extension](\testresource-extension-for-junit-5) | The `PluginExtension` uses `TestResource` objects to create simple plugins for JUnit 5. | Jupiter        |
-| [Reuse `TestRule`](#run-junit4-testrule-outside-of-junit-4)  | Use an existing JUnit 4 `TestRule` out of its usual context (e.g in JUnit 5 or TestNG) | Core           |
-| [`TestRule` composition](#compose-testrule-objects)          | Create `TestRule` objects using lambdas and compose complex operations | JUnit 4        |
-| [Dangerous `TestRule` adapter](#dangerous-testrule-adapter)  | Let a JUnit 4 `TestRule` be used with an explicit `setup` and `teardown` - this allows the rule to be converted into a `@Plugin` for use with JUnit 5 | Core & Jupiter |
-| [Pre and post Test Runner lifecycle](#behaviour-outside-the-test-runner-using-test-plugins-and-the-testwrapper-runner) | Add filters to turn whole test classes off, build a Test Runner via functional programming, insert events into the lifecycle before a Test Runner is able to discover tests. <br />Provides the `@Plugin` annotation to declare plugins to the class lifecycle before a test runner is executed | JUnit 4        |
-| [JUnit 4 Test Categories](#test-categories)                  | Dynamically turn off individual test methods using a combination of an `@Category` annotation and environment variables. | JUnit 4        |
-| [Disable Entire Test Suites](#category-filter)               | Dynamically turn off an entire test suite ***especially its setup*** using the `TestWrapper` and the `@Category` annotation in conjunction with the `CategoryFilter` plugin | JUnit 4        |
-| [Dependent Test Methods](#dependent-tests)                   | Rather than manually craft the order of JUnit 4 tests using `@FixMethodOrder`, express how different tests take priority with `@Priority`.<br />Also show how tests depend on each other using `@DependOnPassing`, which also aborts tests that depend on an earlier test that failed.<br />This weaves in the `@Category` capabilities as they would also affect dependent tests. | JUnit 4        |
-| [Execute Test Classes in Parallel](#parallel-test-execution) | Extends the `Enclosed` runner to run all enclosed tests in parallel. | JUnit 4        |
-| [Execute Custom Code Before `@Nested` test in JUnit 5](#beforeachnested-custom-lifecycle-hook) | Where there are multiple child tests and there's a need to reset state between them | Jupiter        |
+| Gadget                                                       | Use Case                                                                                                                                                                                                                                                                                                                                                                           | Available in            |
+| ------------------------------------------------------------ |------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------|
+| [Test Data Factory](#test-data-factory) | Load test data from files in `src/test/resources` into objects in the test class | Core, JUnit 4 & Jupiter |
+| [ConcurrentTest](#concurrent-test)                           | Run activities in parallel, started at the same time, and wait for all to finish before continuing the test.                                                                                                                                                                                                                                                                       | Core                    |
+| [Measure Concurrency](#measure-concurrency)                  | Measure the work done by a thread pool by tapping into it during a test to see how much concurrency there is and how much the pool is in use during the activity.                                                                                                                                                                                                                  | Core                    |
+| [`TestResources`](#test-resources)                           | Construct reusable resource management objects for use with the _execute around_ idiom                                                                                                                                                                                                                                                                                             | Core                    |
+| [JUnit 5 Plugin Extension](\testresource-extension-for-junit-5) | The `PluginExtension` uses `TestResource` objects to create simple plugins for JUnit 5.                                                                                                                                                                                                                                                                                            | Jupiter                 |
+| [Reuse `TestRule`](#run-junit4-testrule-outside-of-junit-4)  | Use an existing JUnit 4 `TestRule` out of its usual context (e.g in JUnit 5 or TestNG)                                                                                                                                                                                                                                                                                             | Core                    |
+| [`TestRule` composition](#compose-testrule-objects)          | Create `TestRule` objects using lambdas and compose complex operations                                                                                                                                                                                                                                                                                                             | JUnit 4                 |
+| [Dangerous `TestRule` adapter](#dangerous-testrule-adapter)  | Let a JUnit 4 `TestRule` be used with an explicit `setup` and `teardown` - this allows the rule to be converted into a `@Plugin` for use with JUnit 5                                                                                                                                                                                                                              | Core & Jupiter          |
+| [Pre and post Test Runner lifecycle](#behaviour-outside-the-test-runner-using-test-plugins-and-the-testwrapper-runner) | Add filters to turn whole test classes off, build a Test Runner via functional programming, insert events into the lifecycle before a Test Runner is able to discover tests. <br />Provides the `@Plugin` annotation to declare plugins to the class lifecycle before a test runner is executed                                                                                    | JUnit 4                 |
+| [JUnit 4 Test Categories](#test-categories)                  | Dynamically turn off individual test methods using a combination of an `@Category` annotation and environment variables.                                                                                                                                                                                                                                                           | JUnit 4                 |
+| [Disable Entire Test Suites](#category-filter)               | Dynamically turn off an entire test suite ***especially its setup*** using the `TestWrapper` and the `@Category` annotation in conjunction with the `CategoryFilter` plugin                                                                                                                                                                                                        | JUnit 4                 |
+| [Dependent Test Methods](#dependent-tests)                   | Rather than manually craft the order of JUnit 4 tests using `@FixMethodOrder`, express how different tests take priority with `@Priority`.<br />Also show how tests depend on each other using `@DependOnPassing`, which also aborts tests that depend on an earlier test that failed.<br />This weaves in the `@Category` capabilities as they would also affect dependent tests. | JUnit 4                 |
+| [Execute Test Classes in Parallel](#parallel-test-execution) | Extends the `Enclosed` runner to run all enclosed tests in parallel.                                                                                                                                                                                                                                                                                                               | JUnit 4                 |
+| [Execute Custom Code Before `@Nested` test in JUnit 5](#beforeachnested-custom-lifecycle-hook) | Where there are multiple child tests and there's a need to reset state between them                                                                                                                                                                                                                                                                                                | Jupiter                 |
+| [Retries](#Retries)                                          | Retry code-under-test or assertions                                                                                                                                                                                                                                                                                                                                                | Core                    |
 
 **Note:** the examples below are often simplified. Please read the source code of the unit tests for this project for more ideas.
 
 Further ideas and examples can be found in [Examples.md](Examples.md).
 
-## Retries
+## Test Data Factory
 
-The `Retryer` class in **TestGadgets Core** allows code to be wrapped with retry logic for testing:
+During our tests we may need to build example request or response objects to use with the system under test.
+
+One pattern for this is to use a Test Data Factory. However, sometimes the example test data is best expressed
+as files in `src/test/resources`, usually in `.json` format.
+
+This module allows us to load these files into fields of our test, annotated with `@TestData`:
 
 ```java
-// construct the retryer
-retryer()
-    .retry(() -> {
-        // test code that might fail
-    });
+// some other set up is required depending on the test framework used
+// by default this would load `src/test/resources/exampleRequest1.json` into the field
+@TestData
+private SomeRequest exampleRequest1;
 ```
 
-The number of iterations can be set with `times` and the amount of time to wait between is set with `waitBetween`. The code under test can be `void` or return a value:
+The fundamentals of this are:
+
+- Customisable `TestDataLoader` object to deserialize the test data files
+- Immutability mode to determine whether to cache the loaded objects between tests
+- Default paths for the test data loader
+- Customisable path and filename for the injected file - defaulting to the name of the field
+- Extensible to other file formats by providing `ObjectLoader` instances
+- Customisable deserialization by providing alternative `JsonLoader` with configured Jackson `ObjectMapper`
+
+### Annotating the Fields
+
+The `@TestData` annotation allows us to provide a path and an immutability mode.
 
 ```java
-String result = retryer()
-    .times(10)
-    .waitBetween(Duration.ofSeconds(1))
-    .retry(() -> callThingThatReturnsResult());
+@TestData(
+    value = {"path", "to", "responseFile.json"},
+    immutable = Immutable.IMMUTABLE
+)
+private SomeResponse expectedResponse;
 ```
 
-A common use case for this would be to wrap an assertion with the retryer while waiting
-for an asynchronous state to change. E.g.:
+In this example, the `src/test/resources` root is combined with `path/to/responseFile.json` to find
+the test data file. As a `.json` file, it's used with the `JsonLoader` to load into `SomeResponse`.
+
+The `immutable` mode of `IMMUTABLE` makes the loader cache it for the lifetime of that loader. If no
+immutable mode is provided, the loader's default mode is used. This can be set on the loader. If
+no immutability is set, then the object is assumed to be mutable and isn't cached. However, `String`
+and `record` are assumed to be immutable.
+
+If we're worried about loading all the files for all tests, regardless of whether they're used by the test
+we can make the field into a supplier and it will allow lazy-loading using `.get()`.
 
 ```java
-AppClient clientToRunningApp = ...;
-retryer()
-   .retry(() -> assertThat(clientToRunningApp.getCompletedJobs())
-          .isEqualTo(10));
-```
+@TestData(
+    value = {"path", "to", "responseFile.json"},
+    immutable = Immutable.IMMUTABLE
+)
+private Supplier<SomeResponse> expectedResponseSupplier;
 
-The configuration of the retryer can be shared across multiple tests:
-
-```java
-private static final RETRY_FOR_10_SECONDS = retryer()
-    .times(10)
-    .waitBetween(Duration.ofSeconds(1));
-
+// ...
 @Test
 void someTest() {
-    RETRY_FOR_10_SECONDS.retry(() -> doSomething());
+    // ...
+    assertThat(response).isEqualTo(expectedResponseSupplier.get());
 }
 ```
 
-Retries are also possible via a **JUnit Rule** from the **JUnit4** module:
+> Note: for asserting JSON responses, maybe consider [Model Assert](https://github.com/webcompere/model-assert)
+
+### Customising the Loader
+
+We can customise the loader by setting its root directory, default immutability, default file extension (for when
+using with field names only) and adding new object loaders:
 
 ```java
+private static final TestDataLoader testDataLoader = new TestDataLoader()
+    // set the root relative to test working dir
+    .setRoot(Paths.get("src", "test", "resources", "otherroot"))
+    // go into subdirectories relative to the root - can be called multiple times
+    .addPath(Paths.get("my", "testdata"))
+    // assume binding by name only is for text files
+    .setDefaultExtension(".txt")
+    // assume all objects immutable
+    .setImmutableMode(Immutable.IMMUTABLE)
+    // add a custom json loader with a custom object mapper
+    .addLoader(".json", new JsonLoader(myObjectMapper));
+```
+
+We don't need the annotations to be able to use this loader. We can call `load` on it directly to
+create test objects. However the annotations can be used with multiple frameworks.
+
+### Standalone/Core Usage
+
+We can load into the annotated fields from a `TestDataLoader` using the `TestDataLoaderAnnotations`
+class.
+
+```java
+@BeforeEach
+void beforeEach() {
+    // though in JUnit 5, we'd use the extension, here's how any test's setup
+    // can bind the instance fields using the testDataLoader with any `@TestData` annotations
+    TestDataLoaderAnnotations.bindAnnotatedFields(testDataLoader, this);
+}
+```
+
+### JUnit 4
+
+To bind the instance fields, we use the `TestDataFieldsRule`:
+
+```java
+// we can make the loader local to the rule if we're not using caching
+// or we can use one already defined
 @Rule
-public RetryTests retryTests = new RetryTests(2, Duration.ofMillis(2));
+public TestDataFieldsRule testDataFieldsRule = new TestDataFieldsRule(testDataLoader);
 ```
 
-The rule will retry all tests, though it will only retry the test method, not the `@Before` or `@After` etc. If a test should not be retried than that test can be annotated with `@DoNotRetry` to prevent the rule executing on it:
+This will instantiate all instance fields with test data.
+
+### JUnit 5
+
+To use a test data loader with JUnit 5, we need the `TestDataExtension`
 
 ```java
-@Test
-public void someTest() {
-  // would be retried up to the limit of the RetryTests rule
-}
+@TestDataExtension
+class TestClass {
 
-@Test
-@DoNotRetry
-public void nonRetried() {
-  // fails immediately without retries
+    // will load `src/test/resources/someRequest1.json`
+    @TestData
+    private SomeRequest someRequest1;
 }
 ```
-
-Note: if the tests change the state of the test object, then allowing them to retry may cause unexpected side effects.
 
 ## Concurrent Test
 
@@ -975,6 +1036,79 @@ class NestedTest {
 ```
 
 This is most useful in integration-type tests, where the parent class sets up some expensive resources, and each `@Nested` class uses those resources, with a `PER_CLASS` test instance lifecycle and a shared cleanup in the `@BeforeEachNested` method.
+
+
+## Retries
+
+> While this is a handy tool, and included here for legacy support reasons, these days we
+> use [Awaitility](https://github.com/awaitility/awaitility) which is much fuller featured.
+
+The `Retryer` class in **TestGadgets Core** allows code to be wrapped with retry logic for testing:
+
+```java
+// construct the retryer
+retryer()
+    .retry(() -> {
+        // test code that might fail
+    });
+```
+
+The number of iterations can be set with `times` and the amount of time to wait between is set with `waitBetween`. The code under test can be `void` or return a value:
+
+```java
+String result = retryer()
+    .times(10)
+    .waitBetween(Duration.ofSeconds(1))
+    .retry(() -> callThingThatReturnsResult());
+```
+
+A common use case for this would be to wrap an assertion with the retryer while waiting
+for an asynchronous state to change. E.g.:
+
+```java
+AppClient clientToRunningApp = ...;
+retryer()
+   .retry(() -> assertThat(clientToRunningApp.getCompletedJobs())
+          .isEqualTo(10));
+```
+
+The configuration of the retryer can be shared across multiple tests:
+
+```java
+private static final RETRY_FOR_10_SECONDS = retryer()
+    .times(10)
+    .waitBetween(Duration.ofSeconds(1));
+
+@Test
+void someTest() {
+    RETRY_FOR_10_SECONDS.retry(() -> doSomething());
+}
+```
+
+Retries are also possible via a **JUnit Rule** from the **JUnit4** module:
+
+```java
+@Rule
+public RetryTests retryTests = new RetryTests(2, Duration.ofMillis(2));
+```
+
+The rule will retry all tests, though it will only retry the test method, not the `@Before` or `@After` etc. If a test should not be retried than that test can be annotated with `@DoNotRetry` to prevent the rule executing on it:
+
+```java
+@Test
+public void someTest() {
+  // would be retried up to the limit of the RetryTests rule
+}
+
+@Test
+@DoNotRetry
+public void nonRetried() {
+  // fails immediately without retries
+}
+```
+
+Note: if the tests change the state of the test object, then allowing them to retry may cause unexpected side effects.
+
 
 ## Contributing
 

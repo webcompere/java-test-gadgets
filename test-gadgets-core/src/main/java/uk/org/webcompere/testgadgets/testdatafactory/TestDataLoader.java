@@ -1,4 +1,4 @@
-package uk.org.webcompere.testgadgets.testdataloader;
+package uk.org.webcompere.testgadgets.testdatafactory;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
@@ -32,6 +32,16 @@ public class TestDataLoader {
     }
 
     private Map<String, ObjectLoader> loaders = TestDataLoader.defaultLoaders();
+
+    /**
+     * Set the root of the test data loadwr
+     * @param root the new root
+     * @return this for fluent use
+     */
+    public TestDataLoader setRoot(Path root) {
+        this.root = root;
+        return this;
+    }
 
     /**
      * Move the root path deeper in the hierarchy

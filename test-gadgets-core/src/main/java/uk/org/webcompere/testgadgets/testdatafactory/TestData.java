@@ -1,4 +1,4 @@
-package uk.org.webcompere.testgadgets.testdataloader;
+package uk.org.webcompere.testgadgets.testdatafactory;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

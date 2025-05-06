@@ -1,4 +1,4 @@
-package uk.org.webcompere.testgadgets.testdataloader;
+package uk.org.webcompere.testgadgets.testdatafactory;
 
 public enum Immutable {
     // the default for a test loader is no caching - MUTABLE, but

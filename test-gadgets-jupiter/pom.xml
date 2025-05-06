@@ -51,6 +51,11 @@
       <artifactId>spotbugs-annotations</artifactId>
     </dependency>
 
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+    </dependency>
+
     <!-- Used for the examples -->
     <dependency>
       <groupId>com.github.tomakehurst</groupId>

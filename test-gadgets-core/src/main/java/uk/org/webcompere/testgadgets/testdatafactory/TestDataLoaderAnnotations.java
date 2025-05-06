@@ -3,6 +3,7 @@ package uk.org.webcompere.testgadgets.testdatafactory;
 import static java.lang.reflect.Modifier.isStatic;
 import static java.util.function.Predicate.not;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
@@ -13,9 +14,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Apply test data loader annotations outcomes
@@ -29,6 +33,8 @@ public class TestDataLoaderAnnotations {
      */
     public static void bindAnnotatedFields(TestDataLoader loaderInstance, Object testObject) throws Exception {
         setupFields(loaderInstance, testObject.getClass(), testObject, not(TestDataLoaderAnnotations::isStaticField));
+        setLoaderFields(
+                loaderInstance, testObject.getClass(), testObject, not(TestDataLoaderAnnotations::isStaticField));
     }
 
     /**
@@ -38,8 +44,64 @@ public class TestDataLoaderAnnotations {
      */
     public static void bindAnnotatedStaticFields(TestDataLoader loaderInstance, Class<?> testClass) throws Exception {
         setupFields(loaderInstance, testClass, testClass, TestDataLoaderAnnotations::isStaticField);
+        setLoaderFields(loaderInstance, testClass, testClass, TestDataLoaderAnnotations::isStaticField);
     }
 
+    /**
+     * Find a test loader in the test class, or the test object or find none
+     * @param testClass the type of the test class
+     * @param testObject the test object
+     * @return any non-null test loader provided by an {@link Loader} annotated field
+     */
+    public static Optional<TestDataLoader> getLoaderFromTestClassOrObject(Class<?> testClass, Object testObject) {
+        return Stream.concat(
+                        Optional.ofNullable(testClass).stream()
+                                .map(tc -> findFirstNonNullLoader(tc, tc, TestDataLoaderAnnotations::isStaticField)),
+                        Optional.ofNullable(testObject).stream()
+                                .map(to -> findFirstNonNullLoader(
+                                        to.getClass(), to, not(TestDataLoaderAnnotations::isStaticField))))
+                .filter(Optional::isPresent)
+                .findFirst()
+                .flatMap(Function.identity());
+    }
+
+    private static Optional<TestDataLoader> findFirstNonNullLoader(
+            Class<?> testClass, Object testInstance, Predicate<Field> predicate) {
+        return findAnnotatedTestDataFields(testClass, Loader.class, predicate).stream()
+                .map(field -> {
+                    try {
+                        makeAccessible(field);
+                        return field.get(testInstance);
+                    } catch (IllegalAccessException e) {
+                        throw new RuntimeException("Could not read field with test loader in", e);
+                    }
+                })
+                .filter(Objects::nonNull)
+                .filter(obj -> obj instanceof TestDataLoader)
+                .map(obj -> (TestDataLoader) obj)
+                .findFirst();
+    }
+
+    private static void setLoaderFields(
+            TestDataLoader loaderInstance, Class<?> testClass, Object testInstance, Predicate<Field> predicate) {
+        findAnnotatedTestDataFields(testClass, Loader.class, predicate.and(field -> isNull(field, testInstance)))
+                .forEach(field -> {
+                    try {
+                        field.set(testInstance, loaderInstance);
+                    } catch (IllegalAccessException e) {
+                        throw new RuntimeException("Cannot set loader field", e);
+                    }
+                });
+    }
+
+    private static boolean isNull(Field field, Object instance) {
+        try {
+            makeAccessible(field);
+            return field.get(instance) == null;
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
     /**
      * Using this loader and this annotation, load the correct value
      * @param loaderInstance the loader which will populate the value
@@ -94,7 +156,12 @@ public class TestDataLoaderAnnotations {
     }
 
     private static List<Field> findTestDataFields(Class<?> clazz, Predicate<Field> predicate) {
-        Predicate<Field> annotated = field -> field.isAnnotationPresent(TestData.class);
+        return findAnnotatedTestDataFields(clazz, TestData.class, predicate);
+    }
+
+    private static List<Field> findAnnotatedTestDataFields(
+            Class<?> clazz, Class<? extends Annotation> annotation, Predicate<Field> predicate) {
+        Predicate<Field> annotated = field -> field.isAnnotationPresent(annotation);
         return getAllFields(clazz, annotated.and(predicate));
     }
 

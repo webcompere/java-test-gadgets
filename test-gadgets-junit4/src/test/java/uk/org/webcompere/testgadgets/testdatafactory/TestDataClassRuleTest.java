@@ -21,6 +21,9 @@ public class TestDataClassRuleTest {
     @TestData("somefile.txt")
     private String somefile;
 
+    @Loader
+    private static TestDataLoader injectedLoader;
+
     @Test
     public void fileIsLoaded() {
         assertThat(somefile).isEqualTo("Hello world");
@@ -29,5 +32,10 @@ public class TestDataClassRuleTest {
     @Test
     public void fileIsLoadedStatically() {
         assertThat(staticFile).isEqualTo("Hello world");
+    }
+
+    @Test
+    public void staticLoaderIsInstantiated() {
+        assertThat(injectedLoader).isSameAs(loader);
     }
 }

@@ -163,6 +163,23 @@ private static final TestDataLoader testDataLoader = new TestDataLoader()
 We don't need the annotations to be able to use this loader. We can call `load` on it directly to
 create test objects. However the annotations can be used with multiple frameworks.
 
+### Accessing the Loader
+
+If we want to use the loader instance that's being populated by the test, then we can inject it into our
+test fields (static or instance) with the `@Loader` annotation:
+
+```java
+// will be injected with the loader instance used by the test
+@Loader
+private TestDataLoader loader;
+```
+
+> Depending on how this loader is created, modifying its state may affect other tests. If it's created by
+a JUnit 4 non-static test rule, then it will be new every time. The recommendation is to use
+> this loader for loading additional files, rather than customisation. Also note that by the
+> time this loader has been instantiated, any other fields will already be populated. However,
+> `Supplier` fields will be loaded lazily, so customising the `TestDataLoader` will affect them.
+
 ### Standalone/Core Usage
 
 We can load into the annotated fields from a `TestDataLoader` using the `TestDataLoaderAnnotations`
@@ -244,6 +261,20 @@ void loadsFile(@TestData("somefile.txt") String somefile) {
 
 This can avoid us needing to load all the files into fields for all the tests. However, providing
 all the files as fields of type `Supplier` may be easier in the general case.
+
+#### Customising JUnit 5 Test Data Loader
+
+If an object of type `TestDataLoader`, annotated with `@Loader` is provided as a static field
+or instance field of the test class, then the extension will use it as the loader within the lifecycle.
+
+> Note: if it's an instance level loader, then static fields will be populated from a default loader first.
+
+```java
+// this loader will be used as the loader
+@Loader
+private static final TestDataLoader customizedLoader = new TestDataLoader()
+    .setRoot(Paths.get("src", "test", "resources", "otherroot"));
+```
 
 ## Concurrent Test
 

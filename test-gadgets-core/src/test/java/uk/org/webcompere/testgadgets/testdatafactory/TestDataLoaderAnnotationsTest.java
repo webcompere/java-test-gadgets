@@ -165,4 +165,69 @@ class TestDataLoaderAnnotationsTest {
 
         assertThat(StaticBoundClass.getSomejson().getName()).isEqualTo("Gadget");
     }
+
+    @Test
+    void canInjectLoaderIntoField() throws Exception {
+        var loader = new TestDataLoader();
+
+        class ReceiveLoader {
+            @Loader
+            private TestDataLoader testDataLoader;
+        }
+
+        var testObject = new ReceiveLoader();
+
+        bindAnnotatedFields(loader, testObject);
+
+        assertThat(testObject.testDataLoader).isSameAs(loader);
+    }
+
+    static class ReceiveStaticLoader {
+        @Loader
+        private static TestDataLoader testDataLoader;
+    }
+
+    @Test
+    void canInjectLoaderIntoStaticField() throws Exception {
+        var loader = new TestDataLoader();
+
+        var testObject = new ReceiveStaticLoader();
+
+        bindAnnotatedStaticFields(loader, ReceiveStaticLoader.class);
+
+        assertThat(ReceiveStaticLoader.testDataLoader).isSameAs(loader);
+    }
+
+    @Test
+    void canReadTestDataLoaderFromTestObjectStatic() throws Exception {
+        var loader = new TestDataLoader();
+
+        var testObject = new ReceiveStaticLoader();
+        ReceiveStaticLoader.testDataLoader = loader;
+
+        assertThat(TestDataLoaderAnnotations.getLoaderFromTestClassOrObject(ReceiveStaticLoader.class, null)
+                        .get())
+                .isSameAs(loader);
+    }
+
+    @Test
+    void canReadTestDataLoaderFromTestObject() {
+        var loader = new TestDataLoader();
+
+        class StoreLoader {
+            @Loader
+            private TestDataLoader testDataLoader;
+        }
+
+        var testObject = new StoreLoader();
+
+        assertThat(TestDataLoaderAnnotations.getLoaderFromTestClassOrObject(null, testObject))
+                .isEmpty();
+
+        testObject.testDataLoader = loader;
+
+        assertThat(TestDataLoaderAnnotations.getLoaderFromTestClassOrObject(null, testObject)
+                        .get())
+                .isSameAs(loader);
+    }
 }

@@ -18,11 +18,18 @@ public class TestDataExtension implements BeforeEachCallback, BeforeAllCallback,
 
     @Override
     public void beforeAll(ExtensionContext context) throws Exception {
+        TestDataLoaderAnnotations.getLoaderFromTestClassOrObject(context.getRequiredTestClass(), null)
+                .ifPresent(loader -> testDataLoader = loader);
+
         TestDataLoaderAnnotations.bindAnnotatedStaticFields(testDataLoader, context.getRequiredTestClass());
     }
 
     @Override
     public void beforeEach(ExtensionContext context) throws Exception {
+        TestDataLoaderAnnotations.getLoaderFromTestClassOrObject(
+                        context.getRequiredTestClass(), context.getRequiredTestInstance())
+                .ifPresent(loader -> testDataLoader = loader);
+
         TestDataLoaderAnnotations.bindAnnotatedFields(testDataLoader, context.getRequiredTestInstance());
     }
 

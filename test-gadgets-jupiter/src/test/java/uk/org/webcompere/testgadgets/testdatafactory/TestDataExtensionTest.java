@@ -1,14 +1,13 @@
-package uk.org.webcompere.testgadgets;
+package uk.org.webcompere.testgadgets.testdatafactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.nio.file.Paths;
 import java.util.function.Supplier;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import uk.org.webcompere.testgadgets.testdatafactory.TestData;
-import uk.org.webcompere.testgadgets.testdatafactory.TestDataExtension;
 
 class TestDataExtensionTest {
 
@@ -55,6 +54,35 @@ class TestDataExtensionTest {
         @Test
         void loadsFileToSupplier(@TestData("somefile.txt") Supplier<String> somefile) {
             assertThat(somefile.get()).isEqualTo("hello world");
+        }
+    }
+
+    @Nested
+    @ExtendWith(TestDataExtension.class)
+    class LoaderIsInjected {
+
+        @Loader
+        private TestDataLoader loader;
+
+        @Test
+        void loaderIsInjected() {
+            assertThat(loader).isNotNull();
+        }
+    }
+
+    @Nested
+    @ExtendWith(TestDataExtension.class)
+    class LoaderIsUsed {
+
+        @Loader
+        private TestDataLoader subDirLoader = new TestDataLoader().addPath(Paths.get("subdir"));
+
+        @TestData("somefile.txt")
+        private String someFile;
+
+        @Test
+        void someFileComesFromSubdir() {
+            assertThat(someFile).isEqualTo("subdir hello");
         }
     }
 }

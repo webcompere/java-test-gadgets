@@ -1,11 +1,11 @@
 package uk.org.webcompere.testgadgets.category;
 
+import static org.junit.Assume.assumeTrue;
+import static uk.org.webcompere.testgadgets.category.CategorySelection.readCategoriesFromEnvironment;
+
 import org.junit.rules.MethodRule;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.Statement;
-
-import static org.junit.Assume.assumeTrue;
-import static uk.org.webcompere.testgadgets.category.CategorySelection.readCategoriesFromEnvironment;
 
 /**
  * When used as a JUnit `@Rule` field, this wires in selective running of tests at method level.

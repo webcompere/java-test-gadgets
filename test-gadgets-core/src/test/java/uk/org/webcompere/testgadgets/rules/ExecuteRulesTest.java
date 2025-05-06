@@ -1,17 +1,16 @@
 package uk.org.webcompere.testgadgets.rules;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-import org.junit.rules.TemporaryFolder;
-
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static uk.org.webcompere.testgadgets.rules.ExecuteRules.executeWithRule;
 import static uk.org.webcompere.testgadgets.rules.ExecuteRules.withRules;
+
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.rules.TemporaryFolder;
 
 class ExecuteRulesTest {
 
@@ -19,8 +18,7 @@ class ExecuteRulesTest {
     void canExecuteUsingJUnit4Rule() throws Exception {
         // given the temporary folder doesn't exist at first
         TemporaryFolder tempFolderRule = new TemporaryFolder();
-        assertThatThrownBy(tempFolderRule::getRoot)
-            .isInstanceOf(IllegalStateException.class);
+        assertThatThrownBy(tempFolderRule::getRoot).isInstanceOf(IllegalStateException.class);
 
         executeWithRule(tempFolderRule, () -> {
             // the temp folder should exist within the confines of the rule
@@ -33,9 +31,10 @@ class ExecuteRulesTest {
         TemporaryFolder tempFolderRule = new TemporaryFolder();
 
         assertThatThrownBy(() -> executeWithRule(tempFolderRule, () -> {
-            // simulate something going wrong
-            throw new IOException("bang");
-        })).isInstanceOf(IOException.class);
+                    // simulate something going wrong
+                    throw new IOException("bang");
+                }))
+                .isInstanceOf(IOException.class);
     }
 
     @Test
@@ -43,8 +42,9 @@ class ExecuteRulesTest {
         TemporaryFolder tempFolderRule = new TemporaryFolder();
 
         assertThatThrownBy(() -> executeWithRule(tempFolderRule, () -> {
-            Assertions.fail("This is a fail");
-        })).isInstanceOf(AssertionError.class);
+                    Assertions.fail("This is a fail");
+                }))
+                .isInstanceOf(AssertionError.class);
     }
 
     @Test
@@ -52,9 +52,10 @@ class ExecuteRulesTest {
         TemporaryFolder tempFolderRule = new TemporaryFolder();
 
         assertThat(executeWithRule(tempFolderRule, () -> {
-            // this is the test code
-            return "some value";
-        })).isEqualTo("some value");
+                    // this is the test code
+                    return "some value";
+                }))
+                .isEqualTo("some value");
     }
 
     @Test
@@ -64,11 +65,10 @@ class ExecuteRulesTest {
 
         Set<String> folders = new HashSet<>();
 
-        withRules(tempFolderRule1, tempFolderRule2)
-            .execute(() -> {
-                folders.add(tempFolderRule1.getRoot().getAbsolutePath());
-                folders.add(tempFolderRule2.getRoot().getAbsolutePath());
-            });
+        withRules(tempFolderRule1, tempFolderRule2).execute(() -> {
+            folders.add(tempFolderRule1.getRoot().getAbsolutePath());
+            folders.add(tempFolderRule2.getRoot().getAbsolutePath());
+        });
 
         assertThat(folders).hasSize(2);
     }
@@ -79,12 +79,12 @@ class ExecuteRulesTest {
         TemporaryFolder tempFolderRule2 = new TemporaryFolder();
 
         Set<String> returnedFolders = withRules(tempFolderRule1, tempFolderRule2)
-            .execute(() -> {
-                Set<String> folders = new HashSet<>();
-                folders.add(tempFolderRule1.getRoot().getAbsolutePath());
-                folders.add(tempFolderRule2.getRoot().getAbsolutePath());
-                return folders;
-             });
+                .execute(() -> {
+                    Set<String> folders = new HashSet<>();
+                    folders.add(tempFolderRule1.getRoot().getAbsolutePath());
+                    folders.add(tempFolderRule2.getRoot().getAbsolutePath());
+                    return folders;
+                });
 
         assertThat(returnedFolders).hasSize(2);
     }

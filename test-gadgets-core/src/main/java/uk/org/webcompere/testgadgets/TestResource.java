@@ -83,7 +83,7 @@ public interface TestResource {
             public void setup() throws Exception {
                 // go through all the resources, setting them up, adding to the list
                 // when they succeed
-                for (TestResource resource: resources) {
+                for (TestResource resource : resources) {
                     resource.setup();
 
                     // keep adding to head, to ensure tear down in reverse order
@@ -98,8 +98,8 @@ public interface TestResource {
                     try {
                         resource.teardown();
                     } catch (Exception e) {
-                        firstExceptionThrownOnTidyUp = firstExceptionThrownOnTidyUp == null ?
-                            e : firstExceptionThrownOnTidyUp;
+                        firstExceptionThrownOnTidyUp =
+                                firstExceptionThrownOnTidyUp == null ? e : firstExceptionThrownOnTidyUp;
                     }
                 }
                 if (firstExceptionThrownOnTidyUp != null) {

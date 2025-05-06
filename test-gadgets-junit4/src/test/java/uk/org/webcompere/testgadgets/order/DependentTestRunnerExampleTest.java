@@ -11,19 +11,13 @@ import org.junit.runner.RunWith;
 public class DependentTestRunnerExampleTest {
     @Test
     @Priority(1)
-    public void aTest() {
-
-    }
+    public void aTest() {}
 
     @Test
     @Priority(2)
     @DependOnPassing("anotherTest")
-    public void dependentTest() {
-
-    }
+    public void dependentTest() {}
 
     @Test
-    public void anotherTest() {
-
-    }
+    public void anotherTest() {}
 }

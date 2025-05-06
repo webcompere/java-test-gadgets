@@ -1,7 +1,6 @@
 package uk.org.webcompere.testgadgets.testdatafactory;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.nio.file.Path;
@@ -27,8 +26,8 @@ public class TestDataLoader {
 
     private static Map<String, ObjectLoader> defaultLoaders() {
         return new HashMap<>(Map.of(
-            ".txt", new TextLoader(),
-            ".json", new JsonLoader()));
+                ".txt", new TextLoader(),
+                ".json", new JsonLoader()));
     }
 
     private Map<String, ObjectLoader> loaders = TestDataLoader.defaultLoaders();
@@ -98,8 +97,9 @@ public class TestDataLoader {
 
         var fileExtension = getExtension(resolved);
         String extensionToUse = fileExtension.orElse(defaultExtension);
-        Path pathToUse = fileExtension.isPresent() ? resolved :
-            resolved.getParent().resolve(pathToFile.getFileName() + extensionToUse);
+        Path pathToUse = fileExtension.isPresent()
+                ? resolved
+                : resolved.getParent().resolve(pathToFile.getFileName() + extensionToUse);
 
         if (!loaders.containsKey(extensionToUse.toLowerCase(Locale.getDefault()))) {
             throw new IOException("No loader present for extension " + extensionToUse);
@@ -144,18 +144,17 @@ public class TestDataLoader {
             return true;
         }
 
-        return type instanceof Class && isRecord((Class<?>)type);
+        return type instanceof Class && isRecord((Class<?>) type);
     }
 
     private static boolean isRecord(Class<?> clazz) {
-        return clazz.getSuperclass() != null &&
-            clazz.getSuperclass().getName().equals("java.lang.Record");
+        return clazz.getSuperclass() != null && clazz.getSuperclass().getName().equals("java.lang.Record");
     }
 
     private static Optional<String> getExtension(Path path) {
         return Optional.ofNullable(path.getFileName())
-            .map(Path::toString)
-            .filter(filename -> filename.lastIndexOf(".") != -1)
-            .map(filename -> filename.substring(filename.lastIndexOf(".")));
+                .map(Path::toString)
+                .filter(filename -> filename.lastIndexOf(".") != -1)
+                .map(filename -> filename.substring(filename.lastIndexOf(".")));
     }
 }

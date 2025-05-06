@@ -1,9 +1,8 @@
 package uk.org.webcompere.testgadgets.retry;
 
-import uk.org.webcompere.testgadgets.ThrowingRunnable;
-
 import java.time.Duration;
 import java.util.concurrent.Callable;
+import uk.org.webcompere.testgadgets.ThrowingRunnable;
 
 /**
  * Wrap around test code that may need to be retried a few times in order to work. This
@@ -119,10 +118,12 @@ public final class Retryer {
      * @throws Exception on any error that escapes retries
      */
     public void retry(ThrowingRunnable operation) throws Exception {
-        retry(() -> {
-            operation.run();
-            return null;
-        }, retries);
+        retry(
+                () -> {
+                    operation.run();
+                    return null;
+                },
+                retries);
     }
 
     /**
@@ -137,7 +138,7 @@ public final class Retryer {
         for (int i = 0; i < maxTimes; i++) {
             try {
                 return operation.call();
-            } catch (Throwable e) {    // NOSONAR
+            } catch (Throwable e) { // NOSONAR
                 // if at the limit, then throw
                 if (i == (maxTimes - 1)) {
                     throw e;

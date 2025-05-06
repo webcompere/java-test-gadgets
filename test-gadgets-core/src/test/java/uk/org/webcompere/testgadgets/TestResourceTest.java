@@ -1,17 +1,16 @@
 package uk.org.webcompere.testgadgets;
 
-
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.never;
 import static uk.org.webcompere.testgadgets.TestResource.with;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 class TestResourceTest {
@@ -79,74 +78,44 @@ class TestResourceTest {
             }
         };
 
-        with(resource1, resource2)
-            .execute(() -> assertThat(someNumber).isEqualTo(10));
+        with(resource1, resource2).execute(() -> assertThat(someNumber).isEqualTo(10));
 
         assertThat(someNumber).isZero();
     }
 
     @Test
     void multipleResourcesAllSetupAndTornDown() throws Exception {
-        with(mock1, mock2, mock3)
-            .execute(() -> {});
+        with(mock1, mock2, mock3).execute(() -> {});
 
-        then(mock1)
-            .should()
-            .setup();
+        then(mock1).should().setup();
 
-        then(mock2)
-            .should()
-            .setup();
+        then(mock2).should().setup();
 
-        then(mock3)
-            .should()
-            .setup();
+        then(mock3).should().setup();
 
-        then(mock1)
-            .should()
-            .teardown();
+        then(mock1).should().teardown();
 
-        then(mock2)
-            .should()
-            .teardown();
+        then(mock2).should().teardown();
 
-        then(mock3)
-            .should()
-            .teardown();
+        then(mock3).should().teardown();
     }
 
     @Test
     void whenAResourceFailsToSetUpItsTeardownAndSubsequentAreCancelled() throws Exception {
-        willThrow(new RuntimeException("bang"))
-            .given(mock2)
-            .setup();
+        willThrow(new RuntimeException("bang")).given(mock2).setup();
 
-        assertThatThrownBy(() -> with(mock1, mock2, mock3)
-            .execute(() -> {}))
-            .isInstanceOf(RuntimeException.class);
+        assertThatThrownBy(() -> with(mock1, mock2, mock3).execute(() -> {})).isInstanceOf(RuntimeException.class);
 
-        then(mock1)
-            .should()
-            .setup();
+        then(mock1).should().setup();
 
-        then(mock2)
-            .should()
-            .setup();
+        then(mock2).should().setup();
 
-        then(mock3)
-            .should(never())
-            .setup();
+        then(mock3).should(never()).setup();
 
-        then(mock1)
-            .should()
-            .teardown();
+        then(mock1).should().teardown();
 
-        then(mock2)
-            .should(never())
-            .teardown();
+        then(mock2).should(never()).teardown();
 
-        then(mock3)
-            .should(never())
-            .teardown();
+        then(mock3).should(never()).teardown();
     }
 }

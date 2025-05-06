@@ -186,8 +186,8 @@ public class EventLog {
         events.forEach(event -> mergeInto(event, simplified));
 
         return simplified.stream()
-            .mapToDouble(event -> event.getEffectiveEnd() - event.getStart())
-            .sum();
+                .mapToDouble(event -> event.getEffectiveEnd() - event.getStart())
+                .sum();
     }
 
     private static void mergeInto(Event event, LinkedList<Event> simplified) {

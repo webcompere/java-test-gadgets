@@ -1,16 +1,15 @@
 package uk.org.webcompere.testgadgets.rules;
 
-import org.junit.rules.TestRule;
-import org.junit.runners.model.Statement;
-import uk.org.webcompere.testgadgets.TestResource;
-import uk.org.webcompere.testgadgets.ThrowingRunnable;
+import static java.util.stream.Collectors.toList;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
-
-import static java.util.stream.Collectors.toList;
+import org.junit.rules.TestRule;
+import org.junit.runners.model.Statement;
+import uk.org.webcompere.testgadgets.TestResource;
+import uk.org.webcompere.testgadgets.ThrowingRunnable;
 
 /**
  * Helpers for creating Test Rules
@@ -63,9 +62,7 @@ public class Rules {
      * @return a statement which does both
      * @see org.junit.rules.ExternalResource
      */
-    public static Statement asStatement(ThrowingRunnable runBefore,
-                                        ThrowingRunnable runAfter,
-                                        Statement inner) {
+    public static Statement asStatement(ThrowingRunnable runBefore, ThrowingRunnable runAfter, Statement inner) {
         return new Statement() {
             @Override
             public void evaluate() throws Throwable {
@@ -110,6 +107,4 @@ public class Rules {
             return lastStatement;
         };
     }
-
-
 }

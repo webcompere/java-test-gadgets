@@ -1,11 +1,10 @@
 package uk.org.webcompere.testgadgets.category;
 
-import uk.org.webcompere.testgadgets.order.DependentTestRunner;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import uk.org.webcompere.testgadgets.order.DependentTestRunner;
 
 /**
  * Tag a test with categories to indicate that it will ONLY run if a category is

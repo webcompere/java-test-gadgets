@@ -8,7 +8,6 @@ import java.lang.annotation.Target;
 /**
  * Annotate a static method to be called before each nested class instance is used
  */
-@Target({ ElementType.ANNOTATION_TYPE, ElementType.METHOD })
+@Target({ElementType.ANNOTATION_TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface BeforeEachNested {
-}
+public @interface BeforeEachNested {}

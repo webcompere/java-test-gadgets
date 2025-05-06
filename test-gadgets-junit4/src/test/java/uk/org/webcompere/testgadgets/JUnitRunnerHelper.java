@@ -1,13 +1,12 @@
 package uk.org.webcompere.testgadgets;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.runner.Description;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
 import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunListener;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class JUnitRunnerHelper extends RunListener {
     private List<String> testOrder = new ArrayList<>();

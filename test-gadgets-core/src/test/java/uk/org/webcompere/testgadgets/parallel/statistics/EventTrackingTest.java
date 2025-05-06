@@ -1,8 +1,8 @@
 package uk.org.webcompere.testgadgets.parallel.statistics;
 
-import org.junit.jupiter.api.Test;
-
 import static org.assertj.core.api.Assertions.*;
+
+import org.junit.jupiter.api.Test;
 
 class EventTrackingTest {
     private EventTracking<String> eventTracking = new EventTracking<>();
@@ -36,8 +36,7 @@ class EventTrackingTest {
 
     @Test
     void cannotEndAChannelWithNoEnd() {
-        assertThatThrownBy(() -> eventTracking.addEnd("chan1"))
-            .isInstanceOf(IndexOutOfBoundsException.class);
+        assertThatThrownBy(() -> eventTracking.addEnd("chan1")).isInstanceOf(IndexOutOfBoundsException.class);
     }
 
     @Test
@@ -45,8 +44,7 @@ class EventTrackingTest {
         eventTracking.addStart("chan1");
         eventTracking.addEnd("chan1");
 
-        assertThatThrownBy(() -> eventTracking.addEnd("chan1"))
-            .isInstanceOf(IndexOutOfBoundsException.class);
+        assertThatThrownBy(() -> eventTracking.addEnd("chan1")).isInstanceOf(IndexOutOfBoundsException.class);
     }
 
     @Test
@@ -84,16 +82,14 @@ class EventTrackingTest {
         eventTracking.addStart("c1", 100);
         eventTracking.addEnd("c1", 200);
 
-        assertThat(eventTracking.calculateStatistics().getUtilization("c1"))
-            .isCloseTo(0.5d, withinPercentage(5));
+        assertThat(eventTracking.calculateStatistics().getUtilization("c1")).isCloseTo(0.5d, withinPercentage(5));
     }
 
     @Test
     void aSubMillisecondEventHasUtilization() {
         eventTracking.addStart("c1", 1);
         eventTracking.addEnd("c1", 1);
-        assertThat(eventTracking.calculateStatistics().getUtilization("c1"))
-            .isEqualTo(1.0d);
+        assertThat(eventTracking.calculateStatistics().getUtilization("c1")).isEqualTo(1.0d);
     }
 
     @Test
@@ -102,8 +98,7 @@ class EventTrackingTest {
         eventTracking.addEnd("c1", 200);
         eventTracking.stop(300);
 
-        assertThat(eventTracking.calculateStatistics().getUtilization("c1"))
-            .isCloseTo(0.5d, withinPercentage(5));
+        assertThat(eventTracking.calculateStatistics().getUtilization("c1")).isCloseTo(0.5d, withinPercentage(5));
     }
 
     @Test
@@ -113,8 +108,7 @@ class EventTrackingTest {
         eventTracking.addEnd("c1", 200);
         eventTracking.stop(300);
 
-        assertThat(eventTracking.calculateStatistics().getUtilization("c1"))
-            .isCloseTo(0.33d, withinPercentage(5));
+        assertThat(eventTracking.calculateStatistics().getUtilization("c1")).isCloseTo(0.33d, withinPercentage(5));
     }
 
     @Test
@@ -122,8 +116,7 @@ class EventTrackingTest {
         eventTracking.addStart("c1", 10);
         eventTracking.addEnd("c1", 20);
 
-        assertThat(eventTracking.calculateStatistics().getMaxConcurrency())
-            .isOne();
+        assertThat(eventTracking.calculateStatistics().getMaxConcurrency()).isOne();
     }
 
     @Test
@@ -133,8 +126,7 @@ class EventTrackingTest {
         eventTracking.addEnd("c1", 20);
         eventTracking.addEnd("c2", 20);
 
-        assertThat(eventTracking.calculateStatistics().getMaxConcurrency())
-            .isEqualTo(2);
+        assertThat(eventTracking.calculateStatistics().getMaxConcurrency()).isEqualTo(2);
     }
 
     @Test
@@ -144,8 +136,7 @@ class EventTrackingTest {
         eventTracking.addStart("c2", 20);
         eventTracking.addEnd("c2", 40);
 
-        assertThat(eventTracking.calculateStatistics().getMaxConcurrency())
-            .isEqualTo(2);
+        assertThat(eventTracking.calculateStatistics().getMaxConcurrency()).isEqualTo(2);
     }
 
     @Test
@@ -155,8 +146,7 @@ class EventTrackingTest {
         eventTracking.addStart("c2", 21);
         eventTracking.addEnd("c2", 40);
 
-        assertThat(eventTracking.calculateStatistics().getMaxConcurrency())
-            .isEqualTo(1);
+        assertThat(eventTracking.calculateStatistics().getMaxConcurrency()).isEqualTo(1);
     }
 
     @Test
@@ -170,8 +160,7 @@ class EventTrackingTest {
         eventTracking.addEnd("c3", 30);
         eventTracking.addStart("c4", 30);
 
-        assertThat(eventTracking.calculateStatistics().getMaxConcurrency())
-            .isEqualTo(4);
+        assertThat(eventTracking.calculateStatistics().getMaxConcurrency()).isEqualTo(4);
     }
 
     @Test
@@ -185,7 +174,6 @@ class EventTrackingTest {
         eventTracking.addEnd("c3", 30);
         eventTracking.addStart("c4", 31);
 
-        assertThat(eventTracking.calculateStatistics().getMaxConcurrency())
-            .isEqualTo(3);
+        assertThat(eventTracking.calculateStatistics().getMaxConcurrency()).isEqualTo(3);
     }
 }

@@ -1,5 +1,11 @@
 package uk.org.webcompere.testgadgets.retry;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.*;
+
+import java.time.Duration;
+import java.util.HashSet;
+import java.util.Set;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
@@ -8,13 +14,6 @@ import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunListener;
 import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.BlockJUnit4ClassRunner;
-
-import java.time.Duration;
-import java.util.HashSet;
-import java.util.Set;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.*;
 
 public class RetryTestsTest {
     private static Set<String> failed = new HashSet<>();
@@ -88,5 +87,4 @@ public class RetryTestsTest {
             assertThat(numberOfMethods).isEqualTo(4);
         }
     }
-
 }

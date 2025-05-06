@@ -1,11 +1,10 @@
 package uk.org.webcompere.testgadgets.parallel;
 
+import java.util.Set;
 import uk.org.webcompere.testgadgets.GenericThrowingCallable;
 import uk.org.webcompere.testgadgets.GenericThrowingRunnable;
 import uk.org.webcompere.testgadgets.parallel.statistics.EventStatistics;
 import uk.org.webcompere.testgadgets.parallel.statistics.EventTracking;
-
-import java.util.Set;
 
 /**
  * A meter can be used to watch a concurrent process. By making each worker in the process call

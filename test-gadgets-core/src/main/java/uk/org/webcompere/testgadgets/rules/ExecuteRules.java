@@ -1,15 +1,14 @@
 package uk.org.webcompere.testgadgets.rules;
 
-import org.junit.rules.TestRule;
-import org.junit.runners.model.Statement;
-import uk.org.webcompere.testgadgets.Box;
-import uk.org.webcompere.testgadgets.ThrowingRunnable;
+import static org.junit.runner.Description.createTestDescription;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Callable;
-
-import static org.junit.runner.Description.createTestDescription;
+import org.junit.rules.TestRule;
+import org.junit.runners.model.Statement;
+import uk.org.webcompere.testgadgets.Box;
+import uk.org.webcompere.testgadgets.ThrowingRunnable;
 
 /**
  * Helpers to work with JUnit4 rules
@@ -50,9 +49,8 @@ public class ExecuteRules {
             }
 
             // recursively execute the next rule with a sub-multirule executor inside
-            return executeWithRule(rules.get(0),
-                () -> new MultiRuleExecutor(rules.subList(1, rules.size()))
-                    .execute(callable));
+            return executeWithRule(
+                    rules.get(0), () -> new MultiRuleExecutor(rules.subList(1, rules.size())).execute(callable));
         }
     }
 
@@ -93,25 +91,26 @@ public class ExecuteRules {
     public static <T> T executeWithRule(TestRule rule, Callable<T> callable) throws Exception {
         Box<T> box = new Box<>();
         try {
-            constructStatement(rule, callable, box)
-                .evaluate();
+            constructStatement(rule, callable, box).evaluate();
         } catch (Throwable t) {
             if (t instanceof Exception) {
-                throw (Exception)t;
+                throw (Exception) t;
             }
             if (t instanceof Error) {
-                throw (Error)t;
+                throw (Error) t;
             }
         }
         return box.getValue();
     }
 
     private static <T> Statement constructStatement(TestRule rule, Callable<T> callable, Box<T> box) {
-        return rule.apply(new Statement() {
-            @Override
-            public void evaluate() throws Throwable {
-                box.setValue(callable.call());
-            }
-        }, createTestDescription(ExecuteRules.class, "executeWithRule"));
+        return rule.apply(
+                new Statement() {
+                    @Override
+                    public void evaluate() throws Throwable {
+                        box.setValue(callable.call());
+                    }
+                },
+                createTestDescription(ExecuteRules.class, "executeWithRule"));
     }
 }

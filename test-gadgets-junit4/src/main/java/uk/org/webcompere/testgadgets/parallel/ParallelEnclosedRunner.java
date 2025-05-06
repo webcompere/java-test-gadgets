@@ -1,16 +1,15 @@
 package uk.org.webcompere.testgadgets.parallel;
 
+import static org.junit.Assert.fail;
+
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runners.model.RunnerBuilder;
 import org.junit.runners.model.RunnerScheduler;
 import org.junit.runners.model.TestClass;
-
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-
-import static org.junit.Assert.fail;
 
 /**
  * A parallel runner for internal test classes. Example:<br>
@@ -44,7 +43,6 @@ import static org.junit.Assert.fail;
  *     }
  * </code></pre>
  */
-
 public class ParallelEnclosedRunner extends Enclosed {
     private static class Scheduler implements RunnerScheduler {
         private ExecutorService parallel;

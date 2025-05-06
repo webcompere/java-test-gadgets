@@ -2,12 +2,9 @@ package uk.org.webcompere.testgadgets.testdatafactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.nio.file.Path;
-
-
 
 /**
  * Implements loading using Jackson

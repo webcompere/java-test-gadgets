@@ -1,5 +1,8 @@
 package uk.org.webcompere.testgadgets.plugin;
 
+import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -7,10 +10,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.org.webcompere.testgadgets.TestResource;
-
-import static org.mockito.BDDMockito.then;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
 
 @ExtendWith(MockitoExtension.class)
 class ReferenceCountingTestResourceTest {
@@ -24,9 +23,7 @@ class ReferenceCountingTestResourceTest {
     void whenSetupThenDecorateeSetup() throws Exception {
         resource.setup();
 
-        then(decoratee)
-            .should()
-            .setup();
+        then(decoratee).should().setup();
     }
 
     @Test
@@ -34,9 +31,7 @@ class ReferenceCountingTestResourceTest {
         resource.setup();
         resource.setup();
 
-        then(decoratee)
-            .should()
-            .setup();
+        then(decoratee).should().setup();
     }
 
     @Test
@@ -44,13 +39,9 @@ class ReferenceCountingTestResourceTest {
         resource.setup();
         resource.setup();
 
-        then(decoratee)
-            .should()
-            .setup();
+        then(decoratee).should().setup();
 
-        then(decoratee)
-            .should(never())
-            .teardown();
+        then(decoratee).should(never()).teardown();
     }
 
     @Test
@@ -58,13 +49,9 @@ class ReferenceCountingTestResourceTest {
         resource.setup();
         resource.teardown();
 
-        then(decoratee)
-            .should()
-            .setup();
+        then(decoratee).should().setup();
 
-        then(decoratee)
-            .should()
-            .teardown();
+        then(decoratee).should().teardown();
     }
 
     @Test
@@ -74,13 +61,9 @@ class ReferenceCountingTestResourceTest {
         resource.teardown();
         resource.teardown();
 
-        then(decoratee)
-            .should()
-            .setup();
+        then(decoratee).should().setup();
 
-        then(decoratee)
-            .should()
-            .teardown();
+        then(decoratee).should().teardown();
     }
 
     @Test
@@ -90,13 +73,9 @@ class ReferenceCountingTestResourceTest {
         resource.setup();
         resource.teardown();
 
-        then(decoratee)
-            .should(times(2))
-            .setup();
+        then(decoratee).should(times(2)).setup();
 
-        then(decoratee)
-            .should(times(2))
-            .teardown();
+        then(decoratee).should(times(2)).teardown();
     }
 
     @Test
@@ -105,12 +84,8 @@ class ReferenceCountingTestResourceTest {
         resource.setup();
         resource.teardown();
 
-        then(decoratee)
-            .should()
-            .setup();
+        then(decoratee).should().setup();
 
-        then(decoratee)
-            .should()
-            .teardown();
+        then(decoratee).should().teardown();
     }
 }

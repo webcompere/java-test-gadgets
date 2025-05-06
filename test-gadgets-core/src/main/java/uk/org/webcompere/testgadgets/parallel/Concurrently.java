@@ -1,8 +1,6 @@
 package uk.org.webcompere.testgadgets.parallel;
 
-import uk.org.webcompere.testgadgets.ThrowingBiConsumer;
-import uk.org.webcompere.testgadgets.ThrowingConsumer;
-import uk.org.webcompere.testgadgets.ThrowingRunnable;
+import static java.util.stream.Collectors.toList;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -11,8 +9,9 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
-
-import static java.util.stream.Collectors.toList;
+import uk.org.webcompere.testgadgets.ThrowingBiConsumer;
+import uk.org.webcompere.testgadgets.ThrowingConsumer;
+import uk.org.webcompere.testgadgets.ThrowingRunnable;
 
 /**
  * Helpers for launching multiple activities at the same time for concurrent testing
@@ -75,9 +74,8 @@ public class Concurrently {
 
         for (int i = 0; i < sourceData.size(); i++) {
             int index = i;
-            new Thread(() ->
-                executeAnAction(actionOnIndex, sourceData, startFlag, everythingFinished, errors, index))
-                .start();
+            new Thread(() -> executeAnAction(actionOnIndex, sourceData, startFlag, everythingFinished, errors, index))
+                    .start();
         }
 
         startAndWaitForTheThreads(startFlag, everythingFinished);
@@ -87,10 +85,13 @@ public class Concurrently {
         }
     }
 
-    private static <T> void executeAnAction(ThrowingBiConsumer<T, Integer> actionOnIndex,
-                                            List<T> sourceData, CountDownLatch startFlag,
-                                            CountDownLatch everythingFinished,
-                                            List<Exception> errors, int index) {
+    private static <T> void executeAnAction(
+            ThrowingBiConsumer<T, Integer> actionOnIndex,
+            List<T> sourceData,
+            CountDownLatch startFlag,
+            CountDownLatch everythingFinished,
+            List<Exception> errors,
+            int index) {
         try {
             startFlag.await();
 

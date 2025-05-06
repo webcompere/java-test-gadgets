@@ -11,6 +11,6 @@ jobs:
           distribution: adopt-openj9
           java-version: 11
           cache: maven
-      - run: ./mvnw clean verify
+      - run: ./mvnw clean spotless:check verify
       - run: CODECOV_TOKEN='${{ secrets.CODECOV_TOKEN }}' bash <(curl -s https://codecov.io/bash)
 

@@ -1,5 +1,11 @@
 package uk.org.webcompere.testgadgets.order;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static uk.org.webcompere.testgadgets.category.CategorySelection.ENVIRONMENT_VARIABLE_INCLUDE;
+
+import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.*;
 import org.junit.runner.Result;
 import org.junit.runner.RunWith;
@@ -7,13 +13,6 @@ import org.junit.runners.MethodSorters;
 import uk.org.webcompere.systemstubs.rules.EnvironmentVariablesRule;
 import uk.org.webcompere.testgadgets.JUnitRunnerHelper;
 import uk.org.webcompere.testgadgets.category.Category;
-
-import java.util.concurrent.atomic.AtomicInteger;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static uk.org.webcompere.testgadgets.category.CategorySelection.ENVIRONMENT_VARIABLE_INCLUDE;
 
 /**
  * The tests here can be run in themselves, but should be excluded from a test runner that digs into inner classes.
@@ -40,7 +39,6 @@ public class DependentTestRunnerTests {
         test3ShouldPass = true;
         test4ShouldPass = true;
     }
-
 
     @RunWith(DependentTestRunner.class)
     public static class TestWithDependenciesInOrder {
@@ -106,15 +104,11 @@ public class DependentTestRunnerTests {
     public static class CyclicDependency {
         @DependOnPassing("test2")
         @Test
-        public void test1() {
-
-        }
+        public void test1() {}
 
         @DependOnPassing("test1")
         @Test
-        public void test2() {
-
-        }
+        public void test2() {}
     }
 
     @Test
@@ -129,9 +123,7 @@ public class DependentTestRunnerTests {
     public static class DependOnNonExistent {
         @DependOnPassing("test2")
         @Test
-        public void test1() {
-
-        }
+        public void test1() {}
     }
 
     @Test
@@ -216,12 +208,10 @@ public class DependentTestRunnerTests {
     public static class TestsWithCategories {
         @Category("cat1")
         @Test
-        public void category1() {
-        }
+        public void category1() {}
 
         @Test
-        public void always() {
-        }
+        public void always() {}
     }
 
     @Test
@@ -259,12 +249,10 @@ public class DependentTestRunnerTests {
 
         @Category("cat1")
         @Test
-        public void category1() {
-        }
+        public void category1() {}
 
         @Test
-        public void always() {
-        }
+        public void always() {}
     }
 
     @Test

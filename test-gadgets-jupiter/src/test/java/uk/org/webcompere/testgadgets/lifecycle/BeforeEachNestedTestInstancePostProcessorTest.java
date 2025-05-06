@@ -1,11 +1,10 @@
 package uk.org.webcompere.testgadgets.lifecycle;
 
-import org.junit.jupiter.api.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.*;
 
 @LifeCycleExtensions
 @TestMethodOrder(MethodOrderer.Alphanumeric.class)

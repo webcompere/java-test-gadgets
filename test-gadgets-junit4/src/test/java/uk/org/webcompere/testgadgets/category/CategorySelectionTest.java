@@ -1,10 +1,10 @@
 package uk.org.webcompere.testgadgets.category;
 
-import org.junit.Before;
-import org.junit.Test;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.org.webcompere.testgadgets.category.CategoryRelationship.EXCLUDE;
+
+import org.junit.Before;
+import org.junit.Test;
 
 public class CategorySelectionTest {
     private Category annotatedWithCategory1Annotation;
@@ -53,7 +53,8 @@ public class CategorySelectionTest {
         CategorySelection selection = CategorySelection.of(null, "cat1");
         assertThat(selection.permits(annotatedWithExcludeCategory1Annotation)).isTrue();
         assertThat(selection.permits(annotatedWithExcludeCategory2Annotation)).isTrue();
-        assertThat(selection.permits(annotatedWithExcludeCategory1and2Annotation)).isTrue();
+        assertThat(selection.permits(annotatedWithExcludeCategory1and2Annotation))
+                .isTrue();
     }
 
     @Test
@@ -61,7 +62,8 @@ public class CategorySelectionTest {
         CategorySelection selection = CategorySelection.of(null, "cat2");
         assertThat(selection.permits(annotatedWithExcludeCategory1Annotation)).isTrue();
         assertThat(selection.permits(annotatedWithExcludeCategory2Annotation)).isTrue();
-        assertThat(selection.permits(annotatedWithExcludeCategory1and2Annotation)).isTrue();
+        assertThat(selection.permits(annotatedWithExcludeCategory1and2Annotation))
+                .isTrue();
     }
 
     @Test
@@ -69,7 +71,8 @@ public class CategorySelectionTest {
         CategorySelection selection = CategorySelection.of(null, "cat1,cat2");
         assertThat(selection.permits(annotatedWithExcludeCategory1Annotation)).isTrue();
         assertThat(selection.permits(annotatedWithExcludeCategory2Annotation)).isTrue();
-        assertThat(selection.permits(annotatedWithExcludeCategory1and2Annotation)).isTrue();
+        assertThat(selection.permits(annotatedWithExcludeCategory1and2Annotation))
+                .isTrue();
     }
 
     @Test
@@ -91,28 +94,24 @@ public class CategorySelectionTest {
     }
 
     @Category("cat1")
-    public void annotatedWithCategory1() {
-    }
+    public void annotatedWithCategory1() {}
 
     @Category("cat2")
-    public void annotatedWithCategory2() {
-    }
+    public void annotatedWithCategory2() {}
 
-    @Category({"cat1","cat2"})
-    public void annotatedWithCategory1and2() {
-    }
+    @Category({"cat1", "cat2"})
+    public void annotatedWithCategory1and2() {}
 
     @Category(value = "cat1", will = EXCLUDE)
-    public void annotatedWithExcludeCategory1() {
-    }
+    public void annotatedWithExcludeCategory1() {}
 
     @Category(value = "cat2", will = EXCLUDE)
-    public void annotatedWithExcludeCategory2() {
-    }
+    public void annotatedWithExcludeCategory2() {}
 
-    @Category(value = {"cat1","cat2"}, will = EXCLUDE)
-    public void annotatedWithExcludeCategory1and2() {
-    }
+    @Category(
+            value = {"cat1", "cat2"},
+            will = EXCLUDE)
+    public void annotatedWithExcludeCategory1and2() {}
 
     private Category getAnnotationFrom(String methodName) throws Exception {
         return getClass().getMethod(methodName).getAnnotation(Category.class);

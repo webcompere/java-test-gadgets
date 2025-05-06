@@ -1,5 +1,8 @@
 package uk.org.webcompere.testgadgets.category;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static uk.org.webcompere.testgadgets.category.CategorySelection.ENVIRONMENT_VARIABLE_INCLUDE;
+
 import org.junit.AfterClass;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
@@ -11,9 +14,6 @@ import uk.org.webcompere.testgadgets.plugin.Plugin;
 import uk.org.webcompere.testgadgets.runner.TestWrapper;
 import uk.org.webcompere.testgadgets.runner.WrapperOptions;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static uk.org.webcompere.testgadgets.category.CategorySelection.ENVIRONMENT_VARIABLE_INCLUDE;
-
 @RunWith(TestWrapper.class)
 @WrapperOptions(runWith = Enclosed.class)
 public class CategoryFilterTest {
@@ -21,7 +21,7 @@ public class CategoryFilterTest {
     private static boolean catBRan = false;
 
     private static EnvironmentVariables environmentVariables =
-        new EnvironmentVariables(ENVIRONMENT_VARIABLE_INCLUDE, "catA");
+            new EnvironmentVariables(ENVIRONMENT_VARIABLE_INCLUDE, "catA");
 
     @Plugin
     public static BeforeAction beforeAll = clazz -> environmentVariables.setup();
@@ -60,5 +60,4 @@ public class CategoryFilterTest {
             catBRan = true;
         }
     }
-
 }

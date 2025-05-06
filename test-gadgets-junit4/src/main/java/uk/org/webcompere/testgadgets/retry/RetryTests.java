@@ -1,13 +1,12 @@
 package uk.org.webcompere.testgadgets.retry;
 
+import static uk.org.webcompere.testgadgets.retry.Retryer.repeat;
+import static uk.org.webcompere.testgadgets.retry.Retryer.retry;
+
+import java.time.Duration;
 import org.junit.rules.MethodRule;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.Statement;
-
-import java.time.Duration;
-
-import static uk.org.webcompere.testgadgets.retry.Retryer.repeat;
-import static uk.org.webcompere.testgadgets.retry.Retryer.retry;
 
 /**
  * JUnit rule that retries tests. Add this to a test class so that each of the test methods
@@ -39,18 +38,19 @@ public class RetryTests implements MethodRule {
                     base.evaluate();
                 } else {
                     // do retries
-                    retry(() -> {
-                        try {
-                            base.evaluate();
-                        } catch (Exception e) {
-                            throw new RuntimeException(e.getMessage(), e);
-                        } catch (Throwable t) {
-                            throw new RuntimeException(t);
-                        }
-                    }, repeat().times(retries).waitBetween(gapBetween));
+                    retry(
+                            () -> {
+                                try {
+                                    base.evaluate();
+                                } catch (Exception e) {
+                                    throw new RuntimeException(e.getMessage(), e);
+                                } catch (Throwable t) {
+                                    throw new RuntimeException(t);
+                                }
+                            },
+                            repeat().times(retries).waitBetween(gapBetween));
                 }
             }
         };
     }
-
 }

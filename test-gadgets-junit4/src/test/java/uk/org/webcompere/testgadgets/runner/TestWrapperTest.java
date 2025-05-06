@@ -1,5 +1,7 @@
 package uk.org.webcompere.testgadgets.runner;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -9,8 +11,6 @@ import uk.org.webcompere.testgadgets.plugin.AfterAction;
 import uk.org.webcompere.testgadgets.plugin.BeforeAction;
 import uk.org.webcompere.testgadgets.plugin.Plugin;
 import uk.org.webcompere.testgadgets.plugin.TestFilter;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(Enclosed.class)
 public class TestWrapperTest {
@@ -23,7 +23,8 @@ public class TestWrapperTest {
         assertThat(filteredOutClassRan).isFalse();
         assertThat(filteredInClassRan).isTrue();
         assertThat(nestedTestRan).isTrue();
-        assertThat(ThisClassShouldExecuteItsBeforeAllAndAfterAllMethods.nestedField).isFalse();
+        assertThat(ThisClassShouldExecuteItsBeforeAllAndAfterAllMethods.nestedField)
+                .isFalse();
     }
 
     @RunWith(TestWrapper.class)

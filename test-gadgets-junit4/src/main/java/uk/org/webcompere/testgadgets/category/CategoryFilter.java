@@ -1,10 +1,10 @@
 package uk.org.webcompere.testgadgets.category;
 
+import static uk.org.webcompere.testgadgets.category.CategorySelection.readCategoriesFromEnvironment;
+
 import org.junit.runners.model.TestClass;
 import uk.org.webcompere.testgadgets.plugin.Plugin;
 import uk.org.webcompere.testgadgets.plugin.TestFilter;
-
-import static uk.org.webcompere.testgadgets.category.CategorySelection.readCategoriesFromEnvironment;
 
 /**
  * A filter, that can be used as a {@link Plugin} annotated field on a class run using the
@@ -21,8 +21,7 @@ public class CategoryFilter implements TestFilter {
     @Override
     public boolean test(Class<?> clazz) {
         CategorySelection selection = readCategoriesFromEnvironment();
-        Category category = new TestClass(clazz)
-            .getAnnotation(Category.class);
+        Category category = new TestClass(clazz).getAnnotation(Category.class);
         if (category == null) {
             return true;
         }

@@ -1,19 +1,18 @@
 package uk.org.webcompere.testgadgets.plugin;
 
-import org.junit.jupiter.api.extension.*;
-import uk.org.webcompere.testgadgets.TestResource;
+import static java.lang.reflect.Modifier.isStatic;
+import static java.util.function.Predicate.not;
+import static org.junit.platform.commons.util.AnnotationUtils.findAnnotatedFields;
+import static org.junit.platform.commons.util.ReflectionUtils.makeAccessible;
+import static org.junit.platform.commons.util.ReflectionUtils.tryToReadFieldValue;
 
 import java.lang.reflect.Field;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
-
-import static java.lang.reflect.Modifier.isStatic;
-import static java.util.function.Predicate.not;
-import static org.junit.platform.commons.util.AnnotationUtils.findAnnotatedFields;
-import static org.junit.platform.commons.util.ReflectionUtils.makeAccessible;
-import static org.junit.platform.commons.util.ReflectionUtils.tryToReadFieldValue;
+import org.junit.jupiter.api.extension.*;
+import uk.org.webcompere.testgadgets.TestResource;
 
 /**
  * Use with {@link org.junit.jupiter.api.extension.ExtendWith} to add automatic processing of
@@ -22,9 +21,13 @@ import static org.junit.platform.commons.util.ReflectionUtils.tryToReadFieldValu
  * {@link Plugin} will be active during the test and cleaned up automatically after.
  * @since 1.0.0
  */
-public class PluginExtension implements TestInstancePostProcessor,
-    TestInstancePreDestroyCallback, ParameterResolver, AfterEachCallback,
-    BeforeAllCallback, AfterAllCallback {
+public class PluginExtension
+        implements TestInstancePostProcessor,
+                TestInstancePreDestroyCallback,
+                ParameterResolver,
+                AfterEachCallback,
+                BeforeAllCallback,
+                AfterAllCallback {
 
     private LinkedList<TestResource> activeResources = new LinkedList<>();
 
@@ -41,25 +44,29 @@ public class PluginExtension implements TestInstancePostProcessor,
     }
 
     @Override
-    public boolean supportsParameter(ParameterContext parameterContext,
-                                     ExtensionContext extensionContext) throws ParameterResolutionException {
-        return TestResource.class.isAssignableFrom(parameterContext.getParameter().getType());
+    public boolean supportsParameter(ParameterContext parameterContext, ExtensionContext extensionContext)
+            throws ParameterResolutionException {
+        return TestResource.class.isAssignableFrom(
+                parameterContext.getParameter().getType());
     }
 
     @Override
-    public Object resolveParameter(ParameterContext parameterContext,
-                                   ExtensionContext extensionContext) throws ParameterResolutionException {
+    public Object resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext)
+            throws ParameterResolutionException {
         try {
             // create using default constructor, turn it on and remember it for cleanup
-            TestResource resource = (TestResource)parameterContext.getParameter().getType().newInstance();
+            TestResource resource =
+                    (TestResource) parameterContext.getParameter().getType().newInstance();
             resource.setup();
 
             activeResources.addFirst(resource);
             return resource;
         } catch (InstantiationException | IllegalAccessException e) {
-            throw new ParameterResolutionException("Failure to call default constructor of TestResource of type " +
-                parameterContext.getParameter().getType().getCanonicalName() +
-                ". The type should have a public default constructor.", e);
+            throw new ParameterResolutionException(
+                    "Failure to call default constructor of TestResource of type "
+                            + parameterContext.getParameter().getType().getCanonicalName()
+                            + ". The type should have a public default constructor.",
+                    e);
         } catch (Exception e) {
             throw new ParameterResolutionException("Cannot start test resource: " + e.getMessage(), e);
         }
@@ -86,20 +93,19 @@ public class PluginExtension implements TestInstancePostProcessor,
             throw new IllegalArgumentException("Cannot use @SystemStub with non TestResource object");
         }
         makeAccessible(field);
-        getInstantiatedTestResource(field, testInstance)
-            .setup();
+        getInstantiatedTestResource(field, testInstance).setup();
     }
 
     private TestResource getInstantiatedTestResource(Field field, Object testInstance) {
         return tryToReadFieldValue(field, testInstance)
-            .toOptional()
-            .map(val -> (TestResource)val)
-            .orElseGet(() -> assignNewInstanceToField(field, testInstance));
+                .toOptional()
+                .map(val -> (TestResource) val)
+                .orElseGet(() -> assignNewInstanceToField(field, testInstance));
     }
 
     private TestResource assignNewInstanceToField(Field field, Object testInstance) {
         try {
-            TestResource resource = (TestResource)field.getType().newInstance();
+            TestResource resource = (TestResource) field.getType().newInstance();
             field.set(testInstance, resource);
             return resource;
         } catch (InstantiationException | IllegalAccessException e) {
@@ -115,13 +121,12 @@ public class PluginExtension implements TestInstancePostProcessor,
 
     private void cleanupFields(Class<?> clazz, Object testInstance, Predicate<Field> predicate) throws Exception {
         LinkedList<TestResource> active = new LinkedList<>();
-        findAnnotatedFields(clazz, Plugin.class, predicate)
-            .stream()
-            .map(field -> tryToReadFieldValue(field, testInstance).toOptional())
-            .filter(Optional::isPresent)
-            .map(Optional::get)
-            .map(item -> (TestResource)item)
-            .forEach(active::addFirst);
+        findAnnotatedFields(clazz, Plugin.class, predicate).stream()
+                .map(field -> tryToReadFieldValue(field, testInstance).toOptional())
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .map(item -> (TestResource) item)
+                .forEach(active::addFirst);
 
         executeCleanup(active);
     }

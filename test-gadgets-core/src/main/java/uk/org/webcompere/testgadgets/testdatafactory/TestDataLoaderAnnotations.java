@@ -1,5 +1,8 @@
 package uk.org.webcompere.testgadgets.testdatafactory;
 
+import static java.lang.reflect.Modifier.isStatic;
+import static java.util.function.Predicate.not;
+
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
@@ -13,9 +16,6 @@ import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-
-import static java.lang.reflect.Modifier.isStatic;
-import static java.util.function.Predicate.not;
 
 /**
  * Apply test data loader annotations outcomes
@@ -39,8 +39,8 @@ public class TestDataLoaderAnnotations {
      * @param testDataAnnotation the annotation on the field/parameter
      * @return an object that, hopefully, meets the spec
      */
-    public static Object load(TestDataLoader loaderInstance, String name, Type type,
-                              TestData testDataAnnotation) throws Exception {
+    public static Object load(TestDataLoader loaderInstance, String name, Type type, TestData testDataAnnotation)
+            throws Exception {
         Path path = testDataAnnotation.value().length > 0 ? pathFrom(testDataAnnotation) : Paths.get(name);
 
         boolean cache = testDataAnnotation.immutable() == Immutable.IMMUTABLE;
@@ -58,11 +58,13 @@ public class TestDataLoaderAnnotations {
 
         Object value;
         if (field.getType().equals(Supplier.class)) {
-            value = (Supplier<?>)(() -> {
+            value = (Supplier<?>) (() -> {
                 try {
-                    return load(loaderInstance, field.getName(),
-                        ((ParameterizedType)field.getGenericType()).getActualTypeArguments()[0],
-                        testDataAnnotation);
+                    return load(
+                            loaderInstance,
+                            field.getName(),
+                            ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0],
+                            testDataAnnotation);
                 } catch (Exception e) {
                     throw new RuntimeException("Cannot load " + e.getMessage(), e);
                 }
@@ -74,8 +76,9 @@ public class TestDataLoaderAnnotations {
         field.set(testInstance, value);
     }
 
-    private static void setupFields(TestDataLoader loaderInstance, Class<?> clazz,
-                                    Object testInstance, Predicate<Field> predicate) throws Exception {
+    private static void setupFields(
+            TestDataLoader loaderInstance, Class<?> clazz, Object testInstance, Predicate<Field> predicate)
+            throws Exception {
         for (Field field : findTestDataFields(clazz, predicate)) {
             setup(loaderInstance, field, testInstance);
         }
@@ -110,10 +113,10 @@ public class TestDataLoaderAnnotations {
 
     static Path pathFrom(TestData testDataAnnotation) {
         return Arrays.stream(testDataAnnotation.value())
-            .flatMap(slug -> Arrays.stream(slug.split("[/\\\\]+")))
-            .filter(not(String::isBlank))
-            .map(Paths::get)
-            .reduce((prev, next) -> prev.resolve(next))
-            .orElseThrow();
+                .flatMap(slug -> Arrays.stream(slug.split("[/\\\\]+")))
+                .filter(not(String::isBlank))
+                .map(Paths::get)
+                .reduce((prev, next) -> prev.resolve(next))
+                .orElseThrow();
     }
 }

@@ -1,18 +1,17 @@
 package uk.org.webcompere.testgadgets.parallel;
 
-import com.google.common.collect.ConcurrentHashMultiset;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Multiset;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
-
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Stream;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static uk.org.webcompere.testgadgets.parallel.Concurrently.*;
+
+import com.google.common.collect.ConcurrentHashMultiset;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Multiset;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Stream;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 
 class ConcurrentlyTest {
 
@@ -22,8 +21,7 @@ class ConcurrentlyTest {
 
         @Test
         void doConcurrently() {
-            executeTogether(() -> map.put("a", "b"),
-                () -> map.put("b", "c"));
+            executeTogether(() -> map.put("a", "b"), () -> map.put("b", "c"));
 
             assertThat(map).containsExactlyEntriesOf(ImmutableMap.of("a", "b", "b", "c"));
         }
@@ -61,7 +59,6 @@ class ConcurrentlyTest {
         }
     }
 
-
     @Nested
     class TestWithData {
         private Multiset<String> set = ConcurrentHashMultiset.create();
@@ -91,10 +88,11 @@ class ConcurrentlyTest {
         @Test
         void whenErrorInWorkerThenAssertionError() {
             assertThatThrownBy(() -> {
-                executeMultiple(10, () -> {
-                    throw new RuntimeException("Boom");
-                });
-            }).isInstanceOf(AssertionError.class);
+                        executeMultiple(10, () -> {
+                            throw new RuntimeException("Boom");
+                        });
+                    })
+                    .isInstanceOf(AssertionError.class);
         }
     }
 }

@@ -1,11 +1,11 @@
 package uk.org.webcompere.testgadgets;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.Rule;
 import org.junit.Test;
 import uk.org.webcompere.testgadgets.testdatafactory.TestData;
 import uk.org.webcompere.testgadgets.testdatafactory.TestDataFieldsRule;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestDataFieldsRuleTest {
 

@@ -1,12 +1,11 @@
 package uk.org.webcompere.testgadgets.rules;
 
+import static uk.org.webcompere.testgadgets.rules.ExecuteRules.executeWithRule;
+
+import java.util.concurrent.CountDownLatch;
 import org.junit.rules.TestRule;
 import uk.org.webcompere.testgadgets.TestResource;
 import uk.org.webcompere.testgadgets.plugin.ReferenceCountingTestResource;
-
-import java.util.concurrent.CountDownLatch;
-
-import static uk.org.webcompere.testgadgets.rules.ExecuteRules.executeWithRule;
 
 /**
  * Before using this, consider if it really is a good idea! This uses threads, and expects a JUnit {@link TestRule}
@@ -19,7 +18,7 @@ import static uk.org.webcompere.testgadgets.rules.ExecuteRules.executeWithRule;
  * <code>PluginExtension</code>
  */
 public class DangerousRuleAdapter<T extends TestRule>
-    extends ReferenceCountingTestResource<DangerousRuleAdapter.DangerousRuleExecutor<T>> {
+        extends ReferenceCountingTestResource<DangerousRuleAdapter.DangerousRuleExecutor<T>> {
 
     /**
      * This uses the {@link ExecuteRules} class to execute the rule on another thread
@@ -48,17 +47,18 @@ public class DangerousRuleAdapter<T extends TestRule>
             CountDownLatch isActive = new CountDownLatch(1);
 
             new Thread(() -> {
-                try {
-                    executeWithRule(rule, () -> {
-                        isActive.countDown();
-                        tearDown.await();
-                    });
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                } finally {
-                    tornDown.countDown();
-                }
-            }).start();
+                        try {
+                            executeWithRule(rule, () -> {
+                                isActive.countDown();
+                                tearDown.await();
+                            });
+                        } catch (Exception e) {
+                            throw new RuntimeException(e);
+                        } finally {
+                            tornDown.countDown();
+                        }
+                    })
+                    .start();
 
             isActive.await();
         }
@@ -94,5 +94,4 @@ public class DangerousRuleAdapter<T extends TestRule>
     public T get() {
         return getDecoratee().getRule();
     }
-
 }

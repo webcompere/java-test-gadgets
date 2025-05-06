@@ -1,9 +1,9 @@
 package uk.org.webcompere.testgadgets.parallel.statistics;
 
+import static java.util.stream.Collectors.toMap;
+
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-
-import static java.util.stream.Collectors.toMap;
 
 /**
  * Tracks the on-off statuses of a series of objects. Thread safe when receiving events.
@@ -28,8 +28,7 @@ public class EventTracking<T> {
      * @param time the start timepoint
      */
     public void addStart(T channel, long time) {
-        eventTracking.computeIfAbsent(channel, c -> new EventLog())
-            .addStart(time);
+        eventTracking.computeIfAbsent(channel, c -> new EventLog()).addStart(time);
     }
 
     /**
@@ -47,9 +46,9 @@ public class EventTracking<T> {
      */
     public void addEnd(T channel, long time) {
         Optional.ofNullable(eventTracking.get(channel))
-            .filter(EventLog::isRunning)
-            .orElseThrow(() -> new IndexOutOfBoundsException("End provided for channel with no start"))
-            .addEnd(time);
+                .filter(EventLog::isRunning)
+                .orElseThrow(() -> new IndexOutOfBoundsException("End provided for channel with no start"))
+                .addEnd(time);
     }
 
     /**
@@ -112,7 +111,7 @@ public class EventTracking<T> {
         EventLog.Timepoint<T>[] starts = getStarts();
         EventLog.Timepoint<T>[] finishes = getFinishes();
 
-        double largestDuration = (double)maxTime - minTime;
+        double largestDuration = (double) maxTime - minTime;
         Map<T, Double> totalTimeSpentActive = gatherActivity(minTime, maxTime);
         calculateUtilizations(totalTimeSpentActive, largestDuration);
 
@@ -120,9 +119,8 @@ public class EventTracking<T> {
     }
 
     private Map<T, Double> gatherActivity(long min, long max) {
-        return eventTracking.entrySet()
-            .stream()
-            .collect(toMap(Map.Entry::getKey, entry -> entry.getValue().totalActivityTime()));
+        return eventTracking.entrySet().stream()
+                .collect(toMap(Map.Entry::getKey, entry -> entry.getValue().totalActivityTime()));
     }
 
     private int calcMaxConcurrency(EventLog.Timepoint<T>[] starts, EventLog.Timepoint<T>[] finishes) {
@@ -137,8 +135,9 @@ public class EventTracking<T> {
 
         while (startsIndex < starts.length) {
             // is the next start event
-            if (currentFinish == null ||
-                (startsIndex < starts.length - 1 && starts[startsIndex + 1].getWhen() <= currentFinish.getWhen())) {
+            if (currentFinish == null
+                    || (startsIndex < starts.length - 1
+                            && starts[startsIndex + 1].getWhen() <= currentFinish.getWhen())) {
                 // move the starts forward
                 startsIndex++;
                 if (startsIndex < starts.length) {
@@ -163,43 +162,39 @@ public class EventTracking<T> {
 
     @SuppressWarnings("unchecked")
     private EventLog.Timepoint<T>[] getStarts() {
-        return (EventLog.Timepoint<T>[])eventTracking.entrySet()
-            .stream()
-            .flatMap(entry -> entry.getValue().getStarts(entry.getKey()))
-            .sorted()
-            .toArray(EventLog.Timepoint[]::new);
+        return (EventLog.Timepoint<T>[]) eventTracking.entrySet().stream()
+                .flatMap(entry -> entry.getValue().getStarts(entry.getKey()))
+                .sorted()
+                .toArray(EventLog.Timepoint[]::new);
     }
 
     @SuppressWarnings("unchecked")
     private EventLog.Timepoint<T>[] getFinishes() {
-        return (EventLog.Timepoint<T>[])eventTracking.entrySet()
-            .stream()
-            .flatMap(entry -> entry.getValue().getFinishes(entry.getKey()))
-            .sorted()
-            .toArray(EventLog.Timepoint[]::new);
+        return (EventLog.Timepoint<T>[]) eventTracking.entrySet().stream()
+                .flatMap(entry -> entry.getValue().getFinishes(entry.getKey()))
+                .sorted()
+                .toArray(EventLog.Timepoint[]::new);
     }
 
     private long getEarliestEventStart() {
-        return eventTracking.values()
-            .stream()
-            .mapToLong(EventLog::getEarliest)
-            .min()
-            .orElse(0);
+        return eventTracking.values().stream()
+                .mapToLong(EventLog::getEarliest)
+                .min()
+                .orElse(0);
     }
 
     private long getLatestEventEnd() {
-        return eventTracking.values()
-            .stream()
-            .mapToLong(EventLog::getLatest)
-            .max()
-            .orElse(0);
+        return eventTracking.values().stream()
+                .mapToLong(EventLog::getLatest)
+                .max()
+                .orElse(0);
     }
 
     private void calculateUtilizations(Map<T, Double> totalTimeSpentActive, double largestDuration) {
         if (largestDuration == 0.0d) {
             throw new RuntimeException("Error: no time spent on anything!");
         }
-        totalTimeSpentActive.forEach((key, value1) ->
-            totalTimeSpentActive.compute(key, (k, value) -> value / largestDuration));
+        totalTimeSpentActive.forEach(
+                (key, value1) -> totalTimeSpentActive.compute(key, (k, value) -> value / largestDuration));
     }
 }

@@ -1,12 +1,11 @@
 package uk.org.webcompere.testgadgets.parallel;
 
-import org.junit.jupiter.api.Test;
-
-import java.util.function.Supplier;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.Percentage.withPercentage;
 import static uk.org.webcompere.testgadgets.parallel.Concurrently.executeMultiple;
+
+import java.util.function.Supplier;
+import org.junit.jupiter.api.Test;
 
 class MeterTest {
     private Meter meter = new Meter();
@@ -114,9 +113,7 @@ class MeterTest {
     }
 
     // example strong exception
-    private static class SomeException extends Exception {
-
-    }
+    private static class SomeException extends Exception {}
 
     private String returnValue() throws SomeException {
         return "value";

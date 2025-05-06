@@ -1,15 +1,14 @@
 package uk.org.webcompere.testgadgets.category;
 
-import org.apache.commons.lang3.StringUtils;
+import static java.util.Collections.emptySet;
+import static java.util.stream.Collectors.toSet;
+import static uk.org.webcompere.testgadgets.category.CategoryRelationship.INCLUDE;
 
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
-
-import static java.util.Collections.emptySet;
-import static java.util.stream.Collectors.toSet;
-import static uk.org.webcompere.testgadgets.category.CategoryRelationship.INCLUDE;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * This class parses the configuration values for included and excluded categories, which are <code>,</code> delimited
@@ -64,23 +63,23 @@ public class CategorySelection {
      */
     public static CategorySelection readCategoriesFromEnvironment() {
         return CategorySelection.of(
-            readEnvironmentVariable(ENVIRONMENT_VARIABLE_INCLUDE),
-            readEnvironmentVariable(ENVIRONMENT_VARIABLE_EXCLUDE));
+                readEnvironmentVariable(ENVIRONMENT_VARIABLE_INCLUDE),
+                readEnvironmentVariable(ENVIRONMENT_VARIABLE_EXCLUDE));
     }
 
     private static String readEnvironmentVariable(String variableName) {
         return possibleSources(variableName)
-            .map(Supplier::get)
-            .filter(Optional::isPresent)
-            .findFirst()
-            .flatMap(Function.identity())
-            .orElse("");
+                .map(Supplier::get)
+                .filter(Optional::isPresent)
+                .findFirst()
+                .flatMap(Function.identity())
+                .orElse("");
     }
 
     private static Stream<Supplier<Optional<String>>> possibleSources(String variableName) {
         return Stream.of(
-            () -> Optional.ofNullable(System.getenv(variableName)),
-            () -> Optional.ofNullable(System.getProperty(variableName)));
+                () -> Optional.ofNullable(System.getenv(variableName)),
+                () -> Optional.ofNullable(System.getProperty(variableName)));
     }
 
     private static Set<String> parse(String input) {
@@ -91,9 +90,7 @@ public class CategorySelection {
     }
 
     private static String[] splitIntoValues(String input) {
-        return Optional.ofNullable(input)
-                .map(str -> str.split(DELIMITER))
-                .orElse(new String[0]);
+        return Optional.ofNullable(input).map(str -> str.split(DELIMITER)).orElse(new String[0]);
     }
 
     /**
@@ -117,8 +114,7 @@ public class CategorySelection {
     }
 
     private static boolean found(Set<String> someValues, Set<String> in) {
-        return someValues.stream()
-                .anyMatch(in::contains);
+        return someValues.stream().anyMatch(in::contains);
     }
 
     private static Set<String> setOf(String[] values) {

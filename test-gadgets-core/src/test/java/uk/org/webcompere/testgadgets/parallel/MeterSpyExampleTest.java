@@ -1,14 +1,14 @@
 package uk.org.webcompere.testgadgets.parallel;
 
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Spy;
-import org.mockito.junit.jupiter.MockitoExtension;
-
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.mockito.BDDMockito.willAnswer;
 import static uk.org.webcompere.testgadgets.GenericThrowingCallable.wrap;
 import static uk.org.webcompere.testgadgets.parallel.Concurrently.executeMultiple;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Spy;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 class MeterSpyExampleTest {
@@ -26,7 +26,8 @@ class MeterSpyExampleTest {
     @Test
     void hookSpyToMeter() throws Exception {
         willAnswer(invocation -> meter.wrapEvent(wrap(invocation::callRealMethod)))
-            .given(someAction).doThing();
+                .given(someAction)
+                .doThing();
 
         executeMultiple(12, someAction::doThing);
 

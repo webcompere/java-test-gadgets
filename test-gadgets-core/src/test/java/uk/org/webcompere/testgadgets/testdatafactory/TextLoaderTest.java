@@ -1,13 +1,12 @@
 package uk.org.webcompere.testgadgets.testdatafactory;
 
-import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import org.junit.jupiter.api.Test;
 
 class TextLoaderTest {
 
@@ -19,19 +18,18 @@ class TextLoaderTest {
 
     @Test
     void cannotLoadTextIntoArbitraryType() {
-        assertThatThrownBy(() -> TEXT_LOADER.load(TEXTFILE, SomeType.class))
-            .isInstanceOf(IOException.class);
+        assertThatThrownBy(() -> TEXT_LOADER.load(TEXTFILE, SomeType.class)).isInstanceOf(IOException.class);
     }
 
     @Test
     void canLoadTextFileToString() throws Exception {
-        String text = (String)TEXT_LOADER.load(TEXTFILE, String.class);
+        String text = (String) TEXT_LOADER.load(TEXTFILE, String.class);
         assertThat(text).isEqualTo("Line 1\nLine 2");
     }
 
     @Test
     void canLoadTextFileToStringArray() throws Exception {
-        String[] text = (String[])TEXT_LOADER.load(TEXTFILE, String[].class);
+        String[] text = (String[]) TEXT_LOADER.load(TEXTFILE, String[].class);
         assertThat(text).containsExactly("Line 1", "Line 2");
     }
 }

@@ -3,7 +3,6 @@ package uk.org.webcompere.testgadgets.parallel;
 import static org.junit.Assert.assertEquals;
 
 import java.util.concurrent.atomic.AtomicInteger;
-
 import org.junit.AfterClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -74,5 +73,4 @@ public class ParallelEnclosedRunnerTest {
             total.incrementAndGet();
         }
     }
-
 }

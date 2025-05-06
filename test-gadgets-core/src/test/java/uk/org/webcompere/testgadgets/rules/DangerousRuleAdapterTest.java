@@ -1,11 +1,10 @@
 package uk.org.webcompere.testgadgets.rules;
 
-import org.junit.jupiter.api.Test;
-import org.junit.rules.TemporaryFolder;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.File;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.Test;
+import org.junit.rules.TemporaryFolder;
 
 class DangerousRuleAdapterTest {
     @Test

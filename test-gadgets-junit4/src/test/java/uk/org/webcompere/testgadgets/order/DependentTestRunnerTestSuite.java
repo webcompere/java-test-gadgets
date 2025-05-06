@@ -9,5 +9,4 @@ import org.junit.runners.Suite;
  */
 @RunWith(Suite.class)
 @Suite.SuiteClasses({DependentTestRunnerTests.class})
-public class DependentTestRunnerTestSuite {
-}
+public class DependentTestRunnerTestSuite {}

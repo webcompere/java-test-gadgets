@@ -1,5 +1,9 @@
 package uk.org.webcompere.testgadgets.rules;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static uk.org.webcompere.testgadgets.rules.Rules.*;
+
+import java.io.File;
 import org.junit.AfterClass;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -11,11 +15,6 @@ import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 import uk.org.webcompere.systemstubs.rules.EnvironmentVariablesRule;
 import uk.org.webcompere.testgadgets.TestResource;
-
-import java.io.File;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static uk.org.webcompere.testgadgets.rules.Rules.*;
 
 @RunWith(Enclosed.class)
 public class RulesTest {
@@ -100,12 +99,14 @@ public class RulesTest {
         private static EnvironmentVariablesRule environmentVariablesRule = new EnvironmentVariablesRule();
 
         @ClassRule
-        public static TestRule setUpEnvironment = compose(temporaryFolder,
-            doBefore(() -> folder1 = temporaryFolder.newFolder("f1")),
-            doBefore(() -> folder2 = temporaryFolder.newFolder("f2")),
-            environmentVariablesRule,
-            doBefore(() -> environmentVariablesRule.set("FOLDER1", folder1.getAbsolutePath())
-                .set("FOLDER2", folder2.getAbsolutePath())));
+        public static TestRule setUpEnvironment = compose(
+                temporaryFolder,
+                doBefore(() -> folder1 = temporaryFolder.newFolder("f1")),
+                doBefore(() -> folder2 = temporaryFolder.newFolder("f2")),
+                environmentVariablesRule,
+                doBefore(() -> environmentVariablesRule
+                        .set("FOLDER1", folder1.getAbsolutePath())
+                        .set("FOLDER2", folder2.getAbsolutePath())));
 
         @Test
         public void codeUnderTest() {
@@ -125,8 +126,9 @@ public class RulesTest {
                 .around(doBefore(() -> folder1 = temporaryFolder.newFolder("f1")))
                 .around(doBefore(() -> folder2 = temporaryFolder.newFolder("f2")))
                 .around(environmentVariablesRule)
-                .around(doBefore(() -> environmentVariablesRule.set("FOLDER1", folder1.getAbsolutePath())
-                    .set("FOLDER2", folder2.getAbsolutePath())));
+                .around(doBefore(() -> environmentVariablesRule
+                        .set("FOLDER1", folder1.getAbsolutePath())
+                        .set("FOLDER2", folder2.getAbsolutePath())));
 
         @Test
         public void codeUnderTest() {

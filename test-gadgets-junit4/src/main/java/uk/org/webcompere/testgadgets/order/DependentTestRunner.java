@@ -1,5 +1,13 @@
 package uk.org.webcompere.testgadgets.order;
 
+import static java.util.Collections.emptyList;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
+import static org.junit.Assume.assumeTrue;
+
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Stream;
 import org.junit.rules.MethodRule;
 import org.junit.runners.BlockJUnit4ClassRunner;
 import org.junit.runners.model.FrameworkMethod;
@@ -7,15 +15,6 @@ import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.Statement;
 import uk.org.webcompere.testgadgets.category.Category;
 import uk.org.webcompere.testgadgets.category.CategoryRule;
-
-import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Stream;
-
-import static java.util.Collections.emptyList;
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toMap;
-import static org.junit.Assume.assumeTrue;
 
 /**
  * Add this to the definition of a test class with <code>@RunWith(DependentTestRunner.class)</code> in order to
@@ -58,10 +57,11 @@ public class DependentTestRunner extends BlockJUnit4ClassRunner {
         @Override
         public void evaluate() throws Throwable {
             try {
-                dependencies.get(method)
-                        .forEach(dependentTest ->
-                                assumeTrue("Dependent method: " + dependentTest.getName() + " failed",
-                                        !hasFailed.contains(dependentTest)));
+                dependencies
+                        .get(method)
+                        .forEach(dependentTest -> assumeTrue(
+                                "Dependent method: " + dependentTest.getName() + " failed",
+                                !hasFailed.contains(dependentTest)));
 
                 base.evaluate();
             } catch (Throwable t) {
@@ -99,8 +99,7 @@ public class DependentTestRunner extends BlockJUnit4ClassRunner {
 
         List<FrameworkMethod> childrenInPriorityOrder = prioritise(filterForCategory(super.getChildren()));
 
-        methodMap = childrenInPriorityOrder.stream()
-                .collect(toMap(FrameworkMethod::getName, Function.identity()));
+        methodMap = childrenInPriorityOrder.stream().collect(toMap(FrameworkMethod::getName, Function.identity()));
 
         calculateDependencies(childrenInPriorityOrder);
         checkForCyclicDependencies(childrenInPriorityOrder);
@@ -113,9 +112,7 @@ public class DependentTestRunner extends BlockJUnit4ClassRunner {
             return emptyList();
         }
 
-        return children.stream()
-                .filter(categoryRule::isPermitted)
-                .collect(toList());
+        return children.stream().filter(categoryRule::isPermitted).collect(toList());
     }
 
     private List<FrameworkMethod> prioritise(List<FrameworkMethod> children) {
@@ -133,13 +130,13 @@ public class DependentTestRunner extends BlockJUnit4ClassRunner {
     }
 
     private Stream<FrameworkMethod> sorted(List<FrameworkMethod> sortByPriority) {
-        return sortByPriority.stream()
-                .sorted(Comparator.comparingInt(method -> method.getAnnotation(Priority.class).value()));
+        return sortByPriority.stream().sorted(Comparator.comparingInt(method -> method.getAnnotation(Priority.class)
+                .value()));
     }
 
     private void calculateDependencies(List<FrameworkMethod> childrenInOriginalOrder) throws InitializationError {
         dependencies = new HashMap<>();
-        for (FrameworkMethod method:childrenInOriginalOrder) {
+        for (FrameworkMethod method : childrenInOriginalOrder) {
             dependencies.put(method, getDependencies(method));
         }
     }
@@ -151,8 +148,8 @@ public class DependentTestRunner extends BlockJUnit4ClassRunner {
 
     @Override
     protected List<MethodRule> rules(Object target) {
-        return Stream.concat(super.rules(target).stream(),
-                Stream.of(dependencyRule)).collect(toList());
+        return Stream.concat(super.rules(target).stream(), Stream.of(dependencyRule))
+                .collect(toList());
     }
 
     private List<FrameworkMethod> promoteDependencies(List<FrameworkMethod> unpromotedMethods) {
@@ -170,9 +167,9 @@ public class DependentTestRunner extends BlockJUnit4ClassRunner {
                 .collect(toList());
     }
 
-    private void categoriseByDependency(List<FrameworkMethod> methods, List<FrameworkMethod> notDependedOn,
-                                        List<FrameworkMethod> dependedOn) {
-        for (FrameworkMethod method:methods) {
+    private void categoriseByDependency(
+            List<FrameworkMethod> methods, List<FrameworkMethod> notDependedOn, List<FrameworkMethod> dependedOn) {
+        for (FrameworkMethod method : methods) {
             if (isDependedOn(method, methods)) {
                 dependedOn.add(method);
             } else {
@@ -194,22 +191,22 @@ public class DependentTestRunner extends BlockJUnit4ClassRunner {
         return dependentMethods.contains(possibleDependency);
     }
 
-
     private void checkForCyclicDependencies(List<FrameworkMethod> methods) throws InitializationError {
-        for (FrameworkMethod method:methods) {
+        for (FrameworkMethod method : methods) {
             Set<FrameworkMethod> dependenciesSoFar = new HashSet<>();
             proveNoRepeatedDependencies(method, dependenciesSoFar, method);
         }
     }
 
-    private void proveNoRepeatedDependencies(FrameworkMethod originalMethod, Set<FrameworkMethod> dependenciesSoFar,
-                                             FrameworkMethod currentMethod) throws InitializationError {
+    private void proveNoRepeatedDependencies(
+            FrameworkMethod originalMethod, Set<FrameworkMethod> dependenciesSoFar, FrameworkMethod currentMethod)
+            throws InitializationError {
         if (dependenciesSoFar.contains(currentMethod)) {
-            throw new InitializationError("Cyclic dependency: " +
-                originalMethod.getName() + " -> " + dependenciesSoFar);
+            throw new InitializationError(
+                    "Cyclic dependency: " + originalMethod.getName() + " -> " + dependenciesSoFar);
         }
         dependenciesSoFar.add(currentMethod);
-        for (FrameworkMethod dependency:dependencies.get(currentMethod)) {
+        for (FrameworkMethod dependency : dependencies.get(currentMethod)) {
             proveNoRepeatedDependencies(originalMethod, dependenciesSoFar, dependency);
         }
     }
@@ -225,7 +222,7 @@ public class DependentTestRunner extends BlockJUnit4ClassRunner {
 
     private List<FrameworkMethod> convertToMethods(String[] dependencies) throws InitializationError {
         List<FrameworkMethod> result = new ArrayList<>();
-        for (String dependency:dependencies) {
+        for (String dependency : dependencies) {
             result.add(convertToMethod(dependency));
         }
         return result;

@@ -1,12 +1,11 @@
 package uk.org.webcompere.testgadgets.testdatafactory;
 
-import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.assertThat;
+import static uk.org.webcompere.testgadgets.testdatafactory.TestDataLoaderAnnotations.bindAnnotatedFields;
 
 import java.nio.file.Paths;
 import java.util.function.Supplier;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static uk.org.webcompere.testgadgets.testdatafactory.TestDataLoaderAnnotations.bindAnnotatedFields;
+import org.junit.jupiter.api.Test;
 
 class TestDataLoaderAnnotationsTest {
     public static class BoundClass {

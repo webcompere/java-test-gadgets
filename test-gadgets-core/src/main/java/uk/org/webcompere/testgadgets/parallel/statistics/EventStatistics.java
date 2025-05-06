@@ -1,7 +1,6 @@
 package uk.org.webcompere.testgadgets.parallel.statistics;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -49,11 +48,7 @@ public class EventStatistics<T> {
      * @return 0.0 - 1.0
      */
     public double getUtilization() {
-        return utilizations.values()
-            .stream()
-            .mapToDouble(d -> d)
-            .average()
-            .orElse(0);
+        return utilizations.values().stream().mapToDouble(d -> d).average().orElse(0);
     }
 
     /**
@@ -63,6 +58,6 @@ public class EventStatistics<T> {
      */
     public double getUtilization(T channel) {
         return Optional.ofNullable(utilizations.get(channel))
-            .orElseThrow(() -> new NoSuchElementException("No records for " + channel));
+                .orElseThrow(() -> new NoSuchElementException("No records for " + channel));
     }
 }

@@ -2,6 +2,7 @@ package uk.org.webcompere.testgadgets;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.function.Supplier;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -39,6 +40,21 @@ class TestDataExtensionTest {
         @Test
         void loadsFile() {
             assertThat(somefile).isEqualTo("hello world!!!!!");
+        }
+    }
+
+    @Nested
+    @ExtendWith(TestDataExtension.class)
+    class BindingParameter {
+
+        @Test
+        void loadsFile(@TestData("somefile.txt") String somefile) {
+            assertThat(somefile).isEqualTo("hello world");
+        }
+
+        @Test
+        void loadsFileToSupplier(@TestData("somefile.txt") Supplier<String> somefile) {
+            assertThat(somefile.get()).isEqualTo("hello world");
         }
     }
 }

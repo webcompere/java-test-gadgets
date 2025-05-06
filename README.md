@@ -232,6 +232,19 @@ class TestClass {
 }
 ```
 
+As JUnit 5 can also resolve parameters, we can specify a `@TestData` annotated input
+to one of our test functions:
+
+```java
+@Test
+void loadsFile(@TestData("somefile.txt") String somefile) {
+    assertThat(somefile).isEqualTo("hello world");
+}
+```
+
+This can avoid us needing to load all the files into fields for all the tests. However, providing
+all the files as fields of type `Supplier` may be easier in the general case.
+
 ## Concurrent Test
 
 ### Parallel Running

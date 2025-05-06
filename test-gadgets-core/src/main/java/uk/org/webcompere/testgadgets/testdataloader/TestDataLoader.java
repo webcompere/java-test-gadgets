@@ -36,9 +36,22 @@ public class TestDataLoader {
     /**
      * Move the root path deeper in the hierarchy
      * @param subdirectory the subdirectory to move to
+     * @return this for fluent calling
      */
-    public void addPath(Path subdirectory) {
+    public TestDataLoader addPath(Path subdirectory) {
         root = root.resolve(subdirectory);
+        return this;
+    }
+
+    /**
+     * Add an object loader to the configuration - or replace one
+     * @param extension the file extension, including the .
+     * @param objectLoader the loader which can load files of this extension
+     * @return this for fluent calling
+     */
+    public TestDataLoader addLoader(String extension, ObjectLoader objectLoader) {
+        loaders.put(extension.toLowerCase(Locale.getDefault()), objectLoader);
+        return this;
     }
 
     /**
@@ -84,9 +97,11 @@ public class TestDataLoader {
     /**
      * Set a default file extension for when one's not provided
      * @param defaultExtension the default extension to use, including the `.`
+     * @return this for fluent use
      */
-    public void setDefaultExtension(String defaultExtension) {
+    public TestDataLoader setDefaultExtension(String defaultExtension) {
         this.defaultExtension = defaultExtension;
+        return this;
     }
 
     /**
@@ -103,18 +118,17 @@ public class TestDataLoader {
     /**
      * Set the immutable mode
      * @param immutableMode the new mode
+     * @return this for fluent use
      */
-    public void setImmutableMode(Immutable immutableMode) {
+    public TestDataLoader setImmutableMode(Immutable immutableMode) {
         this.immutableMode = immutableMode;
+        return this;
     }
 
-    @SuppressFBWarnings("NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE")
     private static Optional<String> getExtension(Path path) {
-        String filename = path.getFileName().toString();
-        int index = filename.lastIndexOf(".");
-        if (index == -1) {
-            return Optional.empty();
-        }
-        return Optional.of(filename.substring(index));
+        return Optional.ofNullable(path.getFileName())
+            .map(Path::toString)
+            .filter(filename -> filename.lastIndexOf(".") != -1)
+            .map(filename -> filename.substring(filename.lastIndexOf(".")));
     }
 }

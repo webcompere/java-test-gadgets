@@ -1,14 +1,23 @@
 package uk.org.webcompere.testgadgets.testdataloader;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.IOException;
 import java.nio.file.Paths;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.then;
 
+@ExtendWith(MockitoExtension.class)
 class TestDataLoaderTest {
+
+    @Mock
+    private ObjectLoader mockLoader;
 
     @Test
     void loaderCanLoadTextFile() throws Exception {
@@ -89,5 +98,14 @@ class TestDataLoaderTest {
         var loader = new TestDataLoader();
         loader.setImmutableMode(Immutable.DEFAULT);
         assertThat(loader.getImmutableMode()).isEqualTo(Immutable.MUTABLE);
+    }
+
+    @Test
+    void canAddObjectLoader() throws Exception {
+        var loader = new TestDataLoader().addLoader(".TXT", mockLoader);
+
+        loader.load(Paths.get("somefile.txt"), String.class, false);
+
+        then(mockLoader).should().load(any(), any());
     }
 }

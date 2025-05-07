@@ -2,6 +2,7 @@ package uk.org.webcompere.testgadgets.testdatafactory;
 
 import static java.lang.reflect.Modifier.isStatic;
 import static java.util.function.Predicate.not;
+import static uk.org.webcompere.testgadgets.testdatafactory.TestDataCollectionProxy.proxyFor;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AccessibleObject;
@@ -117,14 +118,26 @@ public class TestDataLoaderAnnotations {
      */
     public static Object load(TestDataLoader loaderInstance, String name, Type type, TestData testDataAnnotation)
             throws Exception {
+        if (type instanceof Class) {
+            var proxy = proxyFor((Class<?>) type, testDataAnnotation, null, loaderInstance);
+            if (proxy.isPresent()) {
+                return proxy.get();
+            }
+        }
+
         Path path = testDataAnnotation.value().length > 0 ? pathFrom(testDataAnnotation) : Paths.get(name);
 
+        boolean cache = shouldCache(loaderInstance, testDataAnnotation);
+
+        return loaderInstance.load(path, type, cache, testDataAnnotation.as());
+    }
+
+    public static boolean shouldCache(TestDataLoader loaderInstance, TestData testDataAnnotation) {
         boolean cache = testDataAnnotation.immutable() == Immutable.IMMUTABLE;
         if (testDataAnnotation.immutable() == Immutable.DEFAULT) {
             cache = loaderInstance.getImmutableMode() == Immutable.IMMUTABLE;
         }
-
-        return loaderInstance.load(path, type, cache, testDataAnnotation.as());
+        return cache;
     }
 
     private static void setup(TestDataLoader loaderInstance, Field field, Object testInstance) throws Exception {

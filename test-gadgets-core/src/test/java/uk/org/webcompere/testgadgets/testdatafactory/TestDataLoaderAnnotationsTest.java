@@ -246,4 +246,55 @@ class TestDataLoaderAnnotationsTest {
                         .get())
                 .isSameAs(loader);
     }
+
+    @TestDataCollection
+    public interface SomeData {
+        @TestData("somefile.txt")
+        String someFile();
+
+        @TestData(value = "somejson.json", immutable = Immutable.IMMUTABLE)
+        Catchphrase catchPhrase();
+    }
+
+    @Test
+    void canReadTestDataViaInterface() throws Exception {
+        class Bound {
+            @TestData("loader")
+            private SomeData boundData;
+        }
+
+        var loader = new TestDataLoader();
+        var bound = new Bound();
+
+        bindAnnotatedFields(loader, bound);
+
+        assertThat(bound.boundData.someFile()).isEqualTo("Line 1\n" + "Line 2");
+        assertThat(bound.boundData.catchPhrase().getName()).isEqualTo("Gadget");
+
+        var catch1 = bound.boundData.catchPhrase();
+        var catch2 = bound.boundData.catchPhrase();
+        assertThat(catch1).isSameAs(catch2);
+    }
+
+    @TestDataCollection
+    public interface LoaderData {
+        @TestData("loader")
+        SomeData loaderData();
+    }
+
+    @Test
+    void canReadTestDataViaRecursiveInterface() throws Exception {
+        class Bound {
+            @TestData
+            private LoaderData boundData;
+        }
+
+        var loader = new TestDataLoader();
+        var bound = new Bound();
+
+        bindAnnotatedFields(loader, bound);
+
+        assertThat(bound.boundData.loaderData().someFile()).isEqualTo("Line 1\nLine 2");
+        assertThat(bound.boundData.loaderData().catchPhrase().getName()).isEqualTo("Gadget");
+    }
 }

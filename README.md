@@ -154,6 +154,46 @@ For this, we can use the `as` property of the `@TestData` annotation:
 private String jsonContents;
 ```
 
+### Test Data Collection
+
+Where the same data is used in multiple tests, or where we want all data to be lazy loaded, or where we want
+to structure our test data objects to match the directory structure of our test files, we can create
+test data collections. We start by annotating an interface with `@TestDataCollection` which can have an optional
+path:
+
+```java
+@TestDataCollection("requests")
+interface Requests {
+
+}
+```
+
+Within that collection we can add `@TestData` declarations on parameterless get methods, which act as lazy-loading
+test data fields. This can include other test data collections:
+
+```java
+@TestDataCollection("requests")
+interface Requests {
+    @TestData("request.txt")
+    String requestText();
+
+    @TestData({"path", "to", "requestJson.json"})
+    Request requestJson();
+
+    // where sub requests is another @TestDataCollection tagged interface
+    @TestData("sub-requests")
+    SubRequests subRequests();
+}
+```
+
+This can be injected into a field etc, using a `@TestData` annotation:
+
+```java
+// can optionally set a parent path in this annotation too
+@TestData
+private Requests requests;
+```
+
 ### Customising the Loader
 
 We can customise the loader by setting its root directory, default immutability, default file extension (for when

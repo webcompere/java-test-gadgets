@@ -211,14 +211,24 @@ For instantiating static fields, we need the `TestDataClassRule`:
 
 ```java
 @ClassRule
-public static TestDataClassRule testDataClassRule();
+public static TestDataClassRule testDataClassRule = new TestDataClassRule();
 
 @TestData({"requests", "someRequest"})
 private static SomeRequest someRequest;
 ```
 
 The class rule will be executed once at the start of the test. Both rules can be used in the same test
-and they can share the same loader object.
+and they can share the same loader object:
+
+```java
+private static TestDataLoader testDataLoader = new TestDataLoader(); // optionally customise this
+
+@ClassRule
+public static TestDataClassRule testDataClassRule = new TestDataClassRule(testDataLoader);
+
+@Rule
+public TestDataFieldsRule testDataFieldsRule = new TestDataFieldsRule(testDataLoader);
+```
 
 > Note: for caching to work, there should be a single static instance of the test data loader
 > used with the rule.
@@ -262,6 +272,9 @@ void loadsFile(@TestData("somefile.txt") String somefile) {
 
 This can avoid us needing to load all the files into fields for all the tests. However, providing
 all the files as fields of type `Supplier` may be easier in the general case.
+
+> Note: the extension creates its own loader, and we can inject that loader into an empty
+> field with `@Loader`
 
 #### Customising JUnit 5 Test Data Loader
 

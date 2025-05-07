@@ -141,6 +141,19 @@ void someTest() {
 
 > Note: for asserting JSON responses, maybe consider [Model Assert](https://github.com/webcompere/model-assert)
 
+We may prefer to load the file using a different loader than is suggested by its file extension. For example,
+we may have a JSON file and wish to load it into a String as text, rather than serialize `"some value"` into `String`
+from the file using JSON deserialization.
+
+For this, we can use the `as` property of the `@TestData` annotation:
+
+```java
+// will get `src/test/resources/somejson.json` loaded as a string
+// rather than deserialized as though it's a JSON string literal
+@TestData(value = "somejson.json", as = ".txt")
+private String jsonContents;
+```
+
 ### Customising the Loader
 
 We can customise the loader by setting its root directory, default immutability, default file extension (for when

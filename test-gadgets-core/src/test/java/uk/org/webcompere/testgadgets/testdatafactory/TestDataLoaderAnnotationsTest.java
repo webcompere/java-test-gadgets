@@ -115,6 +115,25 @@ class TestDataLoaderAnnotationsTest {
     }
 
     @Test
+    void canLoadWithOverrideType() throws Exception {
+        var loader = new TestDataLoader();
+
+        class BoundClass {
+            @TestData(
+                    value = {"loader", "somejson.json"},
+                    as = ".txt")
+            String somejson;
+        }
+
+        var bound = new BoundClass();
+        bindAnnotatedFields(loader, bound);
+
+        // has loaded as string
+        assertThat(bound.somejson)
+                .isEqualTo("{\n" + "    \"name\": \"Gadget\",\n" + "    \"catchPhrase\": \"GadgetGadget\"\n" + "}");
+    }
+
+    @Test
     void whenTheLoaderIsSetToImmutableSubsequentLoadsAreCached() throws Exception {
         var loader = new TestDataLoader();
         loader.addPath(Paths.get("loader"));
@@ -191,8 +210,6 @@ class TestDataLoaderAnnotationsTest {
     void canInjectLoaderIntoStaticField() throws Exception {
         var loader = new TestDataLoader();
 
-        var testObject = new ReceiveStaticLoader();
-
         bindAnnotatedStaticFields(loader, ReceiveStaticLoader.class);
 
         assertThat(ReceiveStaticLoader.testDataLoader).isSameAs(loader);
@@ -202,7 +219,6 @@ class TestDataLoaderAnnotationsTest {
     void canReadTestDataLoaderFromTestObjectStatic() throws Exception {
         var loader = new TestDataLoader();
 
-        var testObject = new ReceiveStaticLoader();
         ReceiveStaticLoader.testDataLoader = loader;
 
         assertThat(TestDataLoaderAnnotations.getLoaderFromTestClassOrObject(ReceiveStaticLoader.class, null)

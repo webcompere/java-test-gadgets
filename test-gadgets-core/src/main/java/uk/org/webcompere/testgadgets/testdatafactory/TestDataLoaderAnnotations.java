@@ -124,7 +124,7 @@ public class TestDataLoaderAnnotations {
             cache = loaderInstance.getImmutableMode() == Immutable.IMMUTABLE;
         }
 
-        return loaderInstance.load(path, type, cache);
+        return loaderInstance.load(path, type, cache, testDataAnnotation.as());
     }
 
     private static void setup(TestDataLoader loaderInstance, Field field, Object testInstance) throws Exception {

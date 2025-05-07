@@ -72,13 +72,28 @@ public class TestDataLoader {
      * @param <T> the type of object to load
      * @throws IOException on any error
      */
-    @SuppressWarnings("unchecked")
     public <T> T load(Path pathToFile, Type type, boolean useCache) throws IOException {
+        return load(pathToFile, type, useCache, null);
+    }
+
+    /**
+     * Load a file into an object
+     * @param pathToFile the path to the file relative to the paths in the engine
+     * @param type the type to hydrate
+     * @param useCache whether to use the cache at all
+     * @param overrideExtension can be null or blank, but if present, it's the file extension that defines which
+     *                     loader to use, in place of the native file extension
+     * @return the object required
+     * @param <T> the type of object to load
+     * @throws IOException on any error
+     */
+    @SuppressWarnings("unchecked")
+    public <T> T load(Path pathToFile, Type type, boolean useCache, String overrideExtension) throws IOException {
         if (isImmutable(type) || useCache) {
             try {
                 return (T) cache.computeIfAbsent(pathToFile, (path) -> {
                     try {
-                        return loadWithLoaders(pathToFile, type);
+                        return loadWithLoaders(pathToFile, type, overrideExtension);
                     } catch (IOException e) {
                         throw new RuntimeException("Error loading " + pathToFile + " " + e.getMessage(), e);
                     }
@@ -88,11 +103,11 @@ public class TestDataLoader {
             }
         }
 
-        return loadWithLoaders(pathToFile, type);
+        return loadWithLoaders(pathToFile, type, overrideExtension);
     }
 
     @SuppressFBWarnings("NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE")
-    private <T> T loadWithLoaders(Path pathToFile, Type type) throws IOException {
+    private <T> T loadWithLoaders(Path pathToFile, Type type, String overrideExtension) throws IOException {
         Path resolved = root.resolve(pathToFile);
 
         var fileExtension = getExtension(resolved);
@@ -100,6 +115,10 @@ public class TestDataLoader {
         Path pathToUse = fileExtension.isPresent()
                 ? resolved
                 : resolved.getParent().resolve(pathToFile.getFileName() + extensionToUse);
+
+        if (overrideExtension != null && !overrideExtension.isBlank()) {
+            extensionToUse = overrideExtension;
+        }
 
         if (!loaders.containsKey(extensionToUse.toLowerCase(Locale.getDefault()))) {
             throw new IOException("No loader present for extension " + extensionToUse);

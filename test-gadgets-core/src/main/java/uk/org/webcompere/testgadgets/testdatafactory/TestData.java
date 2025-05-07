@@ -19,4 +19,10 @@ public @interface TestData {
      * Is this test data to be treated as immutable and thus cached and served from the cache.
      */
     Immutable immutable() default Immutable.DEFAULT;
+
+    /**
+     * If non blank, use the loader for this alternative file extension (including the .) to load
+     * the file into the target object
+     */
+    String as() default "";
 }

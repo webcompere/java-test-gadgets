@@ -9,6 +9,7 @@ import java.lang.reflect.Proxy;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 /**
  * Act as an interface tagged by <code>@TestDataCollection</code>
@@ -17,16 +18,22 @@ public class TestDataCollectionProxy implements InvocationHandler {
     private Path parentPath;
     private TestDataLoader loader;
 
-    private TestDataCollectionProxy(TestData fieldAnnotation, Path parentPath, TestDataLoader loader) {
-        if (parentPath == null && fieldAnnotation.value().length > 0) {
-            this.parentPath = pathFrom(fieldAnnotation.value());
-        } else if (parentPath != null && fieldAnnotation.value().length > 0) {
-            this.parentPath = parentPath.resolve(pathFrom(fieldAnnotation.value()));
-        } else if (parentPath != null) {
-            this.parentPath = parentPath;
-        }
+    private TestDataCollectionProxy(
+            TestData fieldAnnotation, TestDataCollection classAnnotation, Path parentPath, TestDataLoader loader) {
+        this.parentPath = Stream.of(
+                        Optional.ofNullable(parentPath),
+                        toOptionalPath(fieldAnnotation.value()),
+                        toOptionalPath(classAnnotation.value()))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .reduce(Path::resolve)
+                .orElse(null);
 
         this.loader = loader;
+    }
+
+    private static Optional<Path> toOptionalPath(String[] path) {
+        return Optional.of(path).filter(p -> p.length > 0).map(TestDataLoaderAnnotations::pathFrom);
     }
 
     @Override
@@ -71,6 +78,7 @@ public class TestDataCollectionProxy implements InvocationHandler {
         return Optional.of((T) Proxy.newProxyInstance(
                 clazz.getClassLoader(),
                 new Class<?>[] {clazz},
-                new TestDataCollectionProxy(fieldAnnotation, parentPath, loader)));
+                new TestDataCollectionProxy(
+                        fieldAnnotation, clazz.getAnnotation(TestDataCollection.class), parentPath, loader)));
     }
 }

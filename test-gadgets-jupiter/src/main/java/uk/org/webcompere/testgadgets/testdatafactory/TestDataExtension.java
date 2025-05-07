@@ -1,7 +1,12 @@
 package uk.org.webcompere.testgadgets.testdatafactory;
 
+import static uk.org.webcompere.testgadgets.testdatafactory.TestDataLoaderAnnotations.pathFrom;
+
 import java.lang.reflect.ParameterizedType;
+import java.util.Locale;
 import java.util.function.Supplier;
+
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
@@ -18,10 +23,38 @@ public class TestDataExtension implements BeforeEachCallback, BeforeAllCallback,
 
     @Override
     public void beforeAll(ExtensionContext context) throws Exception {
+        // customise OUR loader with the class header
+        if (context.getRequiredTestClass().isAnnotationPresent(TestDataFactory.class)) {
+            customiseTestDataLoader(context.getRequiredTestClass().getAnnotation(TestDataFactory.class));
+        }
+
         TestDataLoaderAnnotations.getLoaderFromTestClassOrObject(context.getRequiredTestClass(), null)
                 .ifPresent(loader -> testDataLoader = loader);
 
         TestDataLoaderAnnotations.bindAnnotatedStaticFields(testDataLoader, context.getRequiredTestClass());
+    }
+
+    @SuppressFBWarnings("REC_CATCH_EXCEPTION")
+    private void customiseTestDataLoader(TestDataFactory annotation) {
+        if (annotation.root().length > 0) {
+            testDataLoader.setRoot(pathFrom(annotation.root()));
+        }
+        if (annotation.path().length > 0) {
+            testDataLoader.addPath(pathFrom(annotation.path()));
+        }
+        testDataLoader.setImmutableMode(annotation.immutable());
+        for (FileTypeLoader loader : annotation.loaders()) {
+            try {
+                testDataLoader.addLoader(
+                        loader.extension().toLowerCase(Locale.getDefault()),
+                        loader.loadedBy().getDeclaredConstructor().newInstance());
+            } catch (Exception e) {
+                throw new RuntimeException(
+                        "Cannot instantiate test data loader for " + loader.extension() + " -> "
+                                + loader.loadedBy().getCanonicalName(),
+                        e);
+            }
+        }
     }
 
     @Override

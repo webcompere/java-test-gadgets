@@ -225,10 +225,11 @@ and they can share the same loader object.
 
 ### JUnit 5
 
-To use a test data loader with JUnit 5, we need the `TestDataExtension`
+To use a test data loader with JUnit 5, we need the `TestDataExtension` which can be included
+with either `@TestDataFactory` or `@ExtendWith(TestDataExtension.class)`
 
 ```java
-@TestDataExtension
+@TestDataFactory
 class TestClass {
 
     // will load `src/test/resources/someRequest1.json`
@@ -240,7 +241,7 @@ class TestClass {
 The extension will also populate static fields:
 
 ```java
-@TestDataExtension
+@ExtendWith(TestDataExtension.class)
 class TestClass {
 
     // will load `src/test/resources/requests/someRequest-57.json`
@@ -274,6 +275,29 @@ or instance field of the test class, then the extension will use it as the loade
 @Loader
 private static final TestDataLoader customizedLoader = new TestDataLoader()
     .setRoot(Paths.get("src", "test", "resources", "otherroot"));
+```
+
+However, it may be preferable to customise the dataloader with the `@TestDataFactory`
+annotation:
+
+```java
+@TestDataFactory(
+    // a path to the root directory - this is the same as the default
+    root = {"src", "test", "resources"},
+
+    // a sub directory - usually not used at the same time as the root - since
+    // the sub directory can be included in the root
+    path = {"path", "to"},
+
+    // immutability mode for the loader - to set global immutability
+    immutable = Immutable.IMMUTABLE,
+
+    // array of file type loaders, binding extensions to loading classes
+    // which inherit ObjectLoader and must have a default constructor
+    loaders = {@FileTypeLoader(extension = ".yml", loadedBy = MyYamlLoader.class)})
+class SomeTestClass {
+    // ...
+}
 ```
 
 ## Concurrent Test

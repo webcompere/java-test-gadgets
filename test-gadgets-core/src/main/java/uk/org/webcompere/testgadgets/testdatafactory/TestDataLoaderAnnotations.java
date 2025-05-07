@@ -28,8 +28,9 @@ public class TestDataLoaderAnnotations {
 
     /**
      * Apply the right test data to the fields
+     *
      * @param loaderInstance the loader to use
-     * @param testObject a test object to write to
+     * @param testObject     a test object to write to
      */
     public static void bindAnnotatedFields(TestDataLoader loaderInstance, Object testObject) throws Exception {
         setupFields(loaderInstance, testObject.getClass(), testObject, not(TestDataLoaderAnnotations::isStaticField));
@@ -39,8 +40,9 @@ public class TestDataLoaderAnnotations {
 
     /**
      * Apply the right test data to the static fields
+     *
      * @param loaderInstance the loader to use
-     * @param testClass the class to write to
+     * @param testClass      the class to write to
      */
     public static void bindAnnotatedStaticFields(TestDataLoader loaderInstance, Class<?> testClass) throws Exception {
         setupFields(loaderInstance, testClass, testClass, TestDataLoaderAnnotations::isStaticField);
@@ -49,7 +51,8 @@ public class TestDataLoaderAnnotations {
 
     /**
      * Find a test loader in the test class, or the test object or find none
-     * @param testClass the type of the test class
+     *
+     * @param testClass  the type of the test class
      * @param testObject the test object
      * @return any non-null test loader provided by an {@link Loader} annotated field
      */
@@ -102,11 +105,13 @@ public class TestDataLoaderAnnotations {
             throw new RuntimeException(e);
         }
     }
+
     /**
      * Using this loader and this annotation, load the correct value
-     * @param loaderInstance the loader which will populate the value
-     * @param name the name of the field/parameter
-     * @param type the type of the field
+     *
+     * @param loaderInstance     the loader which will populate the value
+     * @param name               the name of the field/parameter
+     * @param type               the type of the field
      * @param testDataAnnotation the annotation on the field/parameter
      * @return an object that, hopefully, meets the spec
      */
@@ -188,7 +193,16 @@ public class TestDataLoaderAnnotations {
     }
 
     static Path pathFrom(TestData testDataAnnotation) {
-        return Arrays.stream(testDataAnnotation.value())
+        return pathFrom(testDataAnnotation.value());
+    }
+
+    /**
+     * Find a path from the slugs provided in an array of path pieces - treating slashes as delimited
+     * @param slugs the slugs
+     * @return a path or exception if nothing is present
+     */
+    public static Path pathFrom(String[] slugs) {
+        return Arrays.stream(slugs)
                 .flatMap(slug -> Arrays.stream(slug.split("[/\\\\]+")))
                 .filter(not(String::isBlank))
                 .map(Paths::get)

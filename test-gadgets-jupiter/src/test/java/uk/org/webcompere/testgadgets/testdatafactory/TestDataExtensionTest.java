@@ -2,6 +2,9 @@ package uk.org.webcompere.testgadgets.testdatafactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.io.IOException;
+import java.lang.reflect.Type;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.function.Supplier;
 import org.junit.jupiter.api.BeforeEach;
@@ -83,6 +86,61 @@ class TestDataExtensionTest {
         @Test
         void someFileComesFromSubdir() {
             assertThat(someFile).isEqualTo("subdir hello");
+        }
+    }
+
+    public static class SomeObjectLoader implements ObjectLoader {
+
+        @Override
+        public Object load(Path source, Type targetType) throws IOException {
+            return source.toString();
+        }
+    }
+
+    @Nested
+    @TestDataFactory(
+            path = {"path", "to"},
+            immutable = Immutable.IMMUTABLE,
+            loaders = {@FileTypeLoader(extension = ".txt", loadedBy = SomeObjectLoader.class)})
+    class Configured {
+
+        @TestData("somefile.txt")
+        private Object someFile; // marked as object to stop default caching
+
+        @TestData("somefile.txt")
+        private Object someFile2;
+
+        @Test
+        void someFileComesFromSubdir() {
+            assertThat(someFile).isEqualTo("src/test/resources/path/to/somefile.txt");
+        }
+
+        @Test
+        void cachingIsPresentSoBothCopiesHaveSameReference() {
+            assertThat(someFile).isSameAs(someFile2);
+        }
+    }
+
+    @Nested
+    @TestDataFactory(
+            root = {"path", "to"},
+            loaders = {@FileTypeLoader(extension = ".txt", loadedBy = SomeObjectLoader.class)})
+    class ConfiguredNonCachingAndWithRoot {
+
+        @TestData("somefile.txt")
+        private Object someFile; // marked as object to stop default caching
+
+        @TestData("somefile.txt")
+        private Object someFile2;
+
+        @Test
+        void someFileComesFromSubdir() {
+            assertThat(someFile).isEqualTo("path/to/somefile.txt");
+        }
+
+        @Test
+        void cachingIsNotPresentSoBothCopiesHaveDifferentReference() {
+            assertThat(someFile).isNotSameAs(someFile2);
         }
     }
 }

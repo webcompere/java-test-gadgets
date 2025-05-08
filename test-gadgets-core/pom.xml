@@ -5,12 +5,12 @@
   <parent>
     <groupId>uk.org.webcompere</groupId>
     <artifactId>test-gadgets-parent</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
     <relativePath>../</relativePath>
   </parent>
 
   <artifactId>test-gadgets-core</artifactId>
-  <version>1.0.0</version>
+  <version>1.0.1</version>
   <packaging>jar</packaging>
 
   <name>Test Gadgets Core</name>

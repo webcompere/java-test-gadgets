@@ -24,7 +24,7 @@ Available from Maven Central
 <dependency>
   <groupId>uk.org.webcompere</groupId>
   <artifactId>test-gadgets-core</artifactId>
-  <version>1.0.0</version>
+  <version>1.0.1</version>
 </dependency>
 ```
 
@@ -34,7 +34,7 @@ Available from Maven Central
 <dependency>
   <groupId>uk.org.webcompere</groupId>
   <artifactId>test-gadgets-junit4</artifactId>
-  <version>1.0.0</version>
+  <version>1.0.1</version>
 </dependency>
 ```
 
@@ -44,7 +44,7 @@ Available from Maven Central
 <dependency>
   <groupId>uk.org.webcompere</groupId>
   <artifactId>test-gadgets-jupiter</artifactId>
-  <version>1.0.0</version>
+  <version>1.0.1</version>
 </dependency>
 ```
 

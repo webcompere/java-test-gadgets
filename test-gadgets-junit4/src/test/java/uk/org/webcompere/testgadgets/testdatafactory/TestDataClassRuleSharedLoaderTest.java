@@ -1,10 +1,10 @@
 package uk.org.webcompere.testgadgets.testdatafactory;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestDataClassRuleSharedLoaderTest {
     @TestData("somefile.txt")

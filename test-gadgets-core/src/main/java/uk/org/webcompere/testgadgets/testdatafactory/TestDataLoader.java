@@ -1,5 +1,7 @@
 package uk.org.webcompere.testgadgets.testdatafactory;
 
+import static uk.org.webcompere.testgadgets.testdatafactory.TestDataLoaderAnnotations.pathFrom;
+
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -10,8 +12,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-
-import static uk.org.webcompere.testgadgets.testdatafactory.TestDataLoaderAnnotations.pathFrom;
 
 /**
  * An instance of this will provide test data objects from the file system
@@ -59,7 +59,7 @@ public class TestDataLoader {
      * @param subdirectories the subdirectories to move to
      * @return this for fluent calling
      */
-    public TestDataLoader addPath(String ... subdirectories) {
+    public TestDataLoader addPath(String... subdirectories) {
         root = root.resolve(pathFrom(subdirectories));
         return this;
     }

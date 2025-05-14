@@ -27,4 +27,8 @@ public class TestDataClassRule implements TestRule {
                 () -> {},
                 statement);
     }
+
+    public TestDataLoader getLoader() {
+        return this.loader;
+    }
 }

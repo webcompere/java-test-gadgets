@@ -11,6 +11,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static uk.org.webcompere.testgadgets.testdatafactory.TestDataLoaderAnnotations.pathFrom;
+
 /**
  * An instance of this will provide test data objects from the file system
  */
@@ -49,6 +51,16 @@ public class TestDataLoader {
      */
     public TestDataLoader addPath(Path subdirectory) {
         root = root.resolve(subdirectory);
+        return this;
+    }
+
+    /**
+     * Move the root path deeper in the hierarchy
+     * @param subdirectories the subdirectories to move to
+     * @return this for fluent calling
+     */
+    public TestDataLoader addPath(String ... subdirectories) {
+        root = root.resolve(pathFrom(subdirectories));
         return this;
     }
 

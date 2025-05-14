@@ -28,6 +28,24 @@ class TestDataLoaderTest {
     }
 
     @Test
+    void loaderCanLoadTextFileChild() throws Exception {
+        var loader = new TestDataLoader();
+        loader.addPath(Paths.get("loader", "child"));
+        String text = loader.load(Paths.get("somefile.txt"), String.class, false);
+
+        assertThat(text).isEqualTo("Child1\nChild2");
+    }
+
+    @Test
+    void loaderCanLoadTextFileChildByPath() throws Exception {
+        var loader = new TestDataLoader();
+        loader.addPath("loader", "child");
+        String text = loader.load(Paths.get("somefile.txt"), String.class, false);
+
+        assertThat(text).isEqualTo("Child1\nChild2");
+    }
+
+    @Test
     void loaderCanLoadTextFileAfterRerooting() throws Exception {
         var loader = new TestDataLoader();
         loader.setRoot(Paths.get("src", "test", "resources", "loader"));

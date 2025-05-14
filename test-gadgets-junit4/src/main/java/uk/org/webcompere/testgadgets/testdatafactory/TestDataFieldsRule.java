@@ -24,4 +24,8 @@ public class TestDataFieldsRule implements MethodRule {
     public Statement apply(Statement statement, FrameworkMethod frameworkMethod, Object o) {
         return asStatement(() -> TestDataLoaderAnnotations.bindAnnotatedFields(loader, o), () -> {}, statement);
     }
+
+    public TestDataLoader getLoader() {
+        return this.loader;
+    }
 }

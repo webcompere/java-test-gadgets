@@ -24,7 +24,7 @@ Available from Maven Central
 <dependency>
   <groupId>uk.org.webcompere</groupId>
   <artifactId>test-gadgets-core</artifactId>
-  <version>1.0.1</version>
+  <version>1.0.2</version>
 </dependency>
 ```
 
@@ -34,7 +34,7 @@ Available from Maven Central
 <dependency>
   <groupId>uk.org.webcompere</groupId>
   <artifactId>test-gadgets-junit4</artifactId>
-  <version>1.0.1</version>
+  <version>1.0.2</version>
 </dependency>
 ```
 
@@ -44,7 +44,7 @@ Available from Maven Central
 <dependency>
   <groupId>uk.org.webcompere</groupId>
   <artifactId>test-gadgets-jupiter</artifactId>
-  <version>1.0.1</version>
+  <version>1.0.2</version>
 </dependency>
 ```
 
@@ -322,6 +322,9 @@ void loadsFile(@TestData("somefile.txt") String somefile) {
     assertThat(somefile).isEqualTo("hello world");
 }
 ```
+
+> Note: the parameter name cannot be used to infer the filename here as JUnit 5 does
+> not know the parameter name, replacing it with `arg0`, `arg1` etc
 
 This can avoid us needing to load all the files into fields for all the tests. However, providing
 all the files as fields of type `Supplier` may be easier in the general case.

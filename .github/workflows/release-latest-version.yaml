@@ -14,8 +14,8 @@ jobs:
                   java-version: '11'
                   distribution: 'temurin'
                   server-id: central
-                  server-username: ${{ secrets.OSSRH_USERNAME }}
-                  server-password: ${{ secrets.OSSRH_TOKEN }}
+                  server-username: MAVEN_USERNAME
+                  server-password: MAVEN_PASSWORD
             - id: install-secret-key
               name: Install gpg secret key
               run: |
@@ -26,4 +26,6 @@ jobs:
                     gpg --list-secret-keys --keyid-format LONG
             - name: Publish package
               run: mvn -Prelease-sign-artifacts -Dgpg.passphrase=${{ secrets.GPG_PASSPHRASE }} --batch-mode deploy
-
+              env:
+                  MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
+                  MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}

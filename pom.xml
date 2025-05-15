@@ -279,6 +279,13 @@
         </plugin>
       </plugins>
     </pluginManagement>
+
+    <plugins>
+      <plugin>
+        <groupId>org.sonatype.central</groupId>
+        <artifactId>central-publishing-maven-plugin</artifactId>
+      </plugin>
+    </plugins>
   </build>
 
   <distributionManagement>

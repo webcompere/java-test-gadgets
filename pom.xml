@@ -46,8 +46,6 @@
     <version.maven-gpg-plugin>1.6</version.maven-gpg-plugin>
     <version.maven-javadoc-plugin>3.2.0</version.maven-javadoc-plugin>
     <version.maven-source-plugin>3.2.1</version.maven-source-plugin>
-    <version.maven-deploy-plugin>3.0.0-M1</version.maven-deploy-plugin>
-    <version.nexus-staging-maven-plugin>1.6.8</version.nexus-staging-maven-plugin>
     <version.maven-release-plugin>3.0.0-M1</version.maven-release-plugin>
     <version.maven-compiler-plugin>3.14.0</version.maven-compiler-plugin>
   </properties>
@@ -248,27 +246,14 @@
           </executions>
         </plugin>
         <plugin>
-          <artifactId>maven-deploy-plugin</artifactId>
-          <version>${version.maven-deploy-plugin}</version>
-          <executions>
-            <execution>
-              <id>default-deploy</id>
-              <phase>deploy</phase>
-              <goals>
-                <goal>deploy</goal>
-              </goals>
-            </execution>
-          </executions>
-        </plugin>
-        <plugin>
-          <groupId>org.sonatype.plugins</groupId>
-          <artifactId>nexus-staging-maven-plugin</artifactId>
-          <version>${version.nexus-staging-maven-plugin}</version>
+          <groupId>org.sonatype.central</groupId>
+          <artifactId>central-publishing-maven-plugin</artifactId>
+          <version>0.7.0</version>
           <extensions>true</extensions>
           <configuration>
-            <serverId>ossrh</serverId>
-            <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-            <autoReleaseAfterClose>true</autoReleaseAfterClose>
+            <publishingServerId>central</publishingServerId>
+            <autoPublish>true</autoPublish>
+            <waitUntil>published</waitUntil>
           </configuration>
         </plugin>
         <plugin>
@@ -295,17 +280,6 @@
       </plugins>
     </pluginManagement>
   </build>
-
-  <distributionManagement>
-    <snapshotRepository>
-      <id>ossrh</id>
-      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-    </snapshotRepository>
-    <repository>
-      <id>ossrh</id>
-      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-    </repository>
-  </distributionManagement>
 
   <issueManagement>
     <system>Github</system>

@@ -281,6 +281,13 @@
     </pluginManagement>
   </build>
 
+  <distributionManagement>
+    <repository>
+      <id>central</id>
+      <url>https://central.sonatype.com/</url>
+    </repository>
+  </distributionManagement>
+
   <issueManagement>
     <system>Github</system>
     <url>https://github.com/webcompere/java-test-gadgets/issues</url>

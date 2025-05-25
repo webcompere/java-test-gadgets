@@ -78,6 +78,8 @@ Further ideas and examples can be found in [Examples.md](Examples.md).
 
 ## Test Data Factory
 
+> See also [https://www.baeldung.com/java-test-gadgets-data-factory](this tutorial) on Baeldung.com.
+
 During our tests we may need to build example request or response objects to use with the system under test.
 
 One pattern for this is to use a Test Data Factory. However, sometimes the example test data is best expressed
